@@ -1,5 +1,5 @@
 
-extern void writeLED(int lednum, int mode, int intervall)
+extern void writeLED(int mode)
 {
 	
 }

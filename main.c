@@ -120,15 +120,15 @@ int main()
 			helpI = 0;
 		}
 		
-		writeLED(0, /*isCritical(hum, 't')*/0, 5);
+		writeLED(/*isCritical(hum, 't')*/0);
 		writeLCD(temp, 't', &timeofday);
 		doSleep(sec, nsec);
 	
-		writeLED(1, /*isCritical(hum, 'h')*/0, 5);
+		writeLED(/*isCritical(hum, 'h')*/0);
 		writeLCD(hum, 'h', &timeofday);
 		doSleep(sec, nsec);
 	
-		writeLED(2, /*isCritical(pres, 'p')*/0, 5);
+		writeLED(/*isCritical(pres, 'p')*/0);
 		writeLCD(pres, 'p', &timeofday);
 		doSleep(sec, nsec);
 	}
