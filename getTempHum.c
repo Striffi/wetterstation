@@ -4,62 +4,52 @@
 #include <math.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <errno.h>
 
 extern int getTempHum(struct temphum* th) {
-	
+	char FNAME[] = "getTempHum";
 	int fd_hyt221 = -1;
-        short b1 = 0;
-        short b2 = 0;
-        short b3 = 0;
-        short b4 = 0;
-        long hum16 = 0;
-        long hum   = 0;
-        long temp16 = 0;
-        long temp   = 0;
-
+	int b12 = 0;
+	int b34 = 0;
+	
 	if (wiringPiSetup () == -1)
 		return 1;
-	fd_hyt221 = wiringPiI2CSetup(0x28);	
+	fd_hyt221 = wiringPiI2CSetup(0x28);
 	if (fd_hyt221 == -1) {
-		printf("Error on setting up I2C for HYT-221\n");
- 		return 1;
+		fprintf(stderr, "%s: Error on setting up I2C for HYT-221\n", FNAME);
+		return 1;
 	}
-
-	/* send MR command */
-        wiringPiI2CWriteReg8(fd_hyt221, 0x29, 0x00);
-        
-        /* wait some time */
-        delay(200);
-        
-        /* send DF command and read 4 bytes */
-        b1 = wiringPiI2CReadReg8(fd_hyt221, 0x28);
-        b2 = wiringPiI2CReadReg8(fd_hyt221, 0x28);
-        b3 = wiringPiI2CReadReg8(fd_hyt221, 0x28);
-        b4 = wiringPiI2CReadReg8(fd_hyt221, 0x28);
-/*
-        printf("b1 %d\n", b1);
-        printf("b2 %d\n", b2);
-        printf("b3 %d\n", b3);
-        printf("b4 %d\n", b4);
-*/
-        /* build 16 bit humidity variable */
-        hum16  = (b1 << 8) | b2;
-        hum16 &= 0x3FFF;
-
-        /* calculate real humidity */
-        hum = (100 * hum16) >> 14;
-        th->hum = hum;
-        printf("real Humidity: %ld\n", hum);
 	
-        
-        /* build 16 bit temperature variable */
-        temp16  = (b3 << 8) | b4;
-
-        /* temperature is only 14 bit */
-        temp = temp16 >> 2;
-        th->temp = temp;
-        printf("real Temperature: %ld\n", temp);
-
-        close (fd_hyt221);
-	return 0;
+	/* send MR (measuring request) command */
+	wiringPiI2CWriteReg8(fd_hyt221, 0x28, 0x50);
+	
+	/* wait some time to take place the conversion */
+	delay(200);
+	
+	/* send DF (data fetch) command */
+	/* wiringPiI2CWriteReg8(fd_hyt221, 0x28, 0x51); */
+	
+	/* read 4 bytes */
+	b12 = wiringPiI2CReadReg16(fd_hyt221, 0x51);
+	b34 = wiringPiI2CReadReg16(fd_hyt221, 0x53);
+		/* debug output */
+		fprintf(stdout, "%s: b12= %d\n", FNAME, b12);
+		fprintf(stdout, "%s: b34= %d\n", FNAME, b34);
+	if (b12 & 0x4000) {
+		fprintf(stdout, "%s: stale bit (15) is set, no new value has been calculated!\n", FNAME);
+	} else if (b12 & 0x8000) {
+		fprintf(stdout, "%s: command mode bit (16) is set, module in command mode!\n", FNAME);
+		}
+	/* mask the first 2 bit, humidity is only 14 bit */
+	b12 &= 0x3FFF;
+	/* calculate real humidity */
+	th->hum = (100 * b12) >> 14;
+		fprintf(stdout, "%s: real Humidity= %d\n", FNAME, th->hum);
+	
+	/* the last 2 bit are not used, temperature is only 14 bit */
+	th->temp = (((b34 >> 2) * 165) >> 14) - 40;
+		fprintf(stdout, "%s: real Temperature= %d\n", FNAME, th->temp);
+	
+	close (fd_hyt221);
+return 0;
 }

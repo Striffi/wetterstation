@@ -1,8 +1,8 @@
 #include <time.h>
 
 struct temphum{
-	double temp;
-	double hum;
+	int temp;
+	int hum;
 };
 
 extern int getTempHum(struct temphum *th);
