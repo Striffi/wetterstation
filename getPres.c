@@ -8,8 +8,9 @@
 #define OSS 1 /* Oversampling_setting = 1 - > conversion time 7,5 ms */
 
 extern double getPres() {
+	char FNAME[] = "getPres";
 	double pressure = 0;
-	/*double p0;*/ /* Pressure at sea level*/
+	double p0; /* Pressure at sea level*/
 	long int p = 0;
 	
 	short AC1 = 0;
@@ -44,13 +45,13 @@ extern double getPres() {
 	
 	int fd_bosch;
 	
-	printf("Setting up wiringPi ....!\n");
+	/* printf("Setting up wiringPi ....!\n"); */
 
 	if (wiringPiSetup () == -1)
 		return 1;
 	fd_bosch = wiringPiI2CSetup(0x77);	
 	if (fd_bosch == -1) {
-		printf("Error on setting up I2C for Bosch\n");
+		fprintf(stderr, "%s: Error on setting up I2C for Bosch\n", FNAME);
  		return 1;
 	}
 
@@ -59,7 +60,7 @@ extern double getPres() {
 	AC1 = wiringPiI2CReadReg8(fd_bosch, 0xAA);
 	AC1 = AC1 << 8;
 	AC1 |= wiringPiI2CReadReg8(fd_bosch, 0xAB);
-	if (AC1 == 0) printf("AC1 = 0 !\n");
+	if (AC1 == 0) fprintf(stdout, "%s: AC1 = 0 !\n", FNAME);
 	/*if (AC1 == 0xFFFF) printf ("AC1 = 0xFFF !\n");*/
 
 	AC2 = wiringPiI2CReadReg8(fd_bosch, 0xAC);
@@ -145,18 +146,22 @@ extern double getPres() {
 	}
 	else {
 		p = (B7 / B4 ) * 2;
-	 }
-
+	}
+	
 	X1 = (p>>8)*(p>>8);
 	X1 = (X1 * 3038) >> 16;
 	X2 = (-7357 * p) >> 16;
 	pressure = p + ((X1 + X2 + 3791) >> 4);
 	
 	/* respecting sea level*/
-
-	/*p0 =p / pow((1 -(172 / 44330)), 5.255);*/
-  	  
-	pressure = pressure/100,00;	  
+	
+	p0 = p / pow((1 -(172 / 44330)), 5.255);
+	
+	pressure = pressure/100.0;
+	p0 = p0 / 100.0;
+	
+	fprintf(stdout, "%s: real pressure = %4.0f HPa\n", FNAME, pressure);
+	fprintf(stdout, "%s: real pressure at sea level = %4.0f HPa\n", FNAME, p0);
 	close (fd_bosch);
 	return pressure;
 }
