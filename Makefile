@@ -20,9 +20,10 @@ OBJECTGETTEMPHUM := getTempHum.o
 OBJECTWRITELCD := writeLCD.o
 OBJECTWRITELED := writeLED.o
 OBJECTMAIN := main.o
+HEADERMODE := mode.h
 HEADERCOMMON := common.h
 
-%.o : %.c $(HEADERCOMMON)
+%.o : %.c $(HEADERCOMMON) $(HEADERMODE)
 	$(CC) $(CFlags) -c $<
 
 all : main
