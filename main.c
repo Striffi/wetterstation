@@ -281,7 +281,7 @@ int main()
 	int helpI = 0;
 	
 	printf("DEBUG: before readConfig the first\n");
-	readConfig("critvales.config", 0, NULL, NULL);
+	readConfig("critvalues.config", 0, NULL, NULL);
 	
 	printf("DEBUG: before readConfig the second\n");
 	readConfig("timer.config", 1, &sec, &nsec);
