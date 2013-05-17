@@ -59,7 +59,7 @@ extern int8_t getTempHum(struct temphum* th) {
 	}
 	
 	/* wait some time for conversion */
-	doSleep(10, 100000000);
+	doSleep(1, 0);
 	
 	/* write the DF (data fetch) command to the sensor and check for ACK */
 	i2cdata[0] = HYT221_DF_COMMAND;

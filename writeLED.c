@@ -1,5 +1,6 @@
 #include <wiringPi.h>
 #include <stdio.h>
+#include "common.h"
 
 int LED_mode;
 
@@ -78,7 +79,7 @@ switch (LED_mode) {
 return 0;
 }
 
-extern void writeLED(int mode) {
+extern void writeLED(uint8_t mode) {
 int x = -1;
 LED_mode = mode;
 

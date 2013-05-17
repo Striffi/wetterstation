@@ -291,7 +291,7 @@ int main()
 	{
 		helpI++;
 		fprintf(stdout, "DEBUG: %s: before getTempHum\n", FNAME);
-		if (!getTempHum(&th)) {
+		if (getTempHum(&th) != 0) {
 			fprintf(stdout, "DEBUG: %s: getTempHum returned an error!\n", FNAME);
 		}
 		temp = th.temp;

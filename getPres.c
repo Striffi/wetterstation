@@ -8,14 +8,14 @@
 #define OSS 1 /* Oversampling_setting = 1 - > conversion time 7,5 ms */
 
 extern double getPres() {
-	
+	const char FNAME[]= "getPres()";
 	double pressure = 0;
 	double temperature = 0;
 	double reduced_pressure = 0;
 	double Tm = 0;
 	/*static double p0 = 1013.25 ;*/ /* Pressure at sea level-international barometric formula*/
 	
-	/*double altitude = 0;*/
+	const double altitude = 180.0; /* Altitude of Floridsdorf in meters above mean sea level */
 
 	short AC1 = 0;
 	short AC2 = 0;
@@ -195,14 +195,17 @@ extern double getPres() {
 	p += (X1 + X2 + 3791) >> 4;
 	pressure = p/100.0; /* Pascal -> hPA */
 	
-	/* calculating reduced pressure (altitude = 200m) */
+	/* calculating reduced pressure */
 	
-	Tm = (temperature + 273.15) + (0.00325 * 200);
-	reduced_pressure = pressure * exp((9.811 * 200) / (287.05 * Tm));
+	Tm = (temperature + 273.15) + (0.00325 * altitude);
+	reduced_pressure = pressure * exp((9.811 * altitude) / (287.05 * Tm));
 
 	/* Calculating Altitude *//* international barometric formula*/
 	/*altitude = 44330 * (1-(pow((pressure/reduced_pressure),(1/5.255)))); 
 	printf("Höhenmeter: %f\n", altitude);*/
+	fprintf(stdout, "DEBUG: %s: temperature = %2.1f Celcius\n", FNAME, temperature);
+	fprintf(stdout, "DEBUG: %s: real pressure = %4.0f HPa\n", FNAME, pressure);
+	fprintf(stdout, "DEBUG: %s: real pressure at sea level = %4.0f HPa\n", FNAME, reduced_pressure);
 
 
 	close (fd_bosch);
