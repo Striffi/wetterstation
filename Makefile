@@ -29,7 +29,7 @@ HEADERCOMMON := common.h
 all : main
 	
 main : $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBJECTWRITELCD) $(OBJECTWRITELED)
-	$(CC) $(CFlags) -o $@ $^ -lwiringPi
+	$(CC) $(CFlags) -o $@ $^ -lwiringPi -lm
 
 clean:
 	$(RM) main getPress getTempHum writeLCD writeLED $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBEJCTWRITELED) $(OBJECTWRITELCD)
