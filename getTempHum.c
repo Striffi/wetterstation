@@ -1,93 +1,111 @@
 #include "common.h"
-#include <wiringPi.h>
-#include <wiringPiI2C.h>
 #include <math.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <linux/i2c-dev.h>
 
-void byte_to_bin(short value) {
-	short i;
-	char binstr[9];
-	binstr[0] = '\0';
+#define HYT221_I2C_ADDRESS 0x28
+#define HYT221_MR_COMMAND  0x50
+#define HYT221_DF_COMMAND  0x51
+
+/* print a byte as binary string for debug info */
+void byte_to_bin(char value) {
+	int i = 0;
+	char binstr[9] = {0};
 	for (i = 7; i >= 0; i--) {
-		binstr[7-i] = '0' + ((value >> i) & 0x1);
+		binstr[7-i] = '0' + ((value >> i) & 0x0001);
 	}
 	puts(binstr);
 	return;
 }
 
-extern int getTempHum(struct temphum* th) {
-	char FNAME[] = "getTempHum";
-	int fd_hyt221 = -1;
-	short b1 = 0;
-	short b2 = 0;
-	short b3 = 0;
-	short b4 = 0;
+/* read temperature and humidity */
+extern int8_t getTempHum(struct temphum* th) {
+	const char FNAME[] = "getTempHum()";
+	/* I2C device name */
+	const char *i2cdevname = "/dev/i2c-1";
+	/* file descriptor for I2C device */
+	int fd_hyt221    = -1;
+	/* store number of bytes read from I2C device */
+	int8_t ackread = -1;
+	/* store the I2C commands and read data */
+	char i2cdata[5] = {0};
+	/* store the humidity */
+	uint16_t hum;
+	/* store the temperature */
+	int16_t temp;
+	int i = 0;
 	
 	errno = 0;
-	if (wiringPiSetup () == -1)
-		return 1;
-	fd_hyt221 = wiringPiI2CSetup(0x28);
-	if (fd_hyt221 == -1) {
-		fprintf(stderr, "%s: Error on setting up I2C for HYT-221\n", FNAME);
+	/* open the I2C device */
+	if ((fd_hyt221 = open(i2cdevname, O_RDWR)) < 0) {
+		fprintf(stderr, "Error: %s: Could not open I2C device! %d\n", FNAME, fd_hyt221);
 		return 1;
 	}
+	/* announce the i2c address of the sensor */
+	if (ioctl(fd_hyt221, I2C_SLAVE, HYT221_I2C_ADDRESS) < 0) {
+		fprintf(stderr, "Error: %s: Cannot detect I2C Slave on this address: %x!\n", FNAME, HYT221_I2C_ADDRESS);
+		return 1;
+	}
+	/* write the MR (measure request) command to the sensor and check for ACK */
+	i2cdata[0] = HYT221_MR_COMMAND;
+	ackread = write(fd_hyt221, i2cdata, 1);
+	if (ackread != 1)
+	{
+		fprintf(stderr, "Error: %s: no ACK received, MR command probably failed!\n", FNAME);
+	}
 	
-	/* send MR (measuring request) command */
-	wiringPiI2CWrite(fd_hyt221, 0x50);
+	/* wait some time for conversion */
+	doSleep(10, 100000000);
 	
-	/* wait some time to finish the conversion */
-	delay(100);
-	
-	/* send DF (data fetch) command */
-	wiringPiI2CWrite(fd_hyt221, 0x51);
-	
-	/* read 4 bytes */
-	b1 = wiringPiI2CRead(fd_hyt221);
-	b2 = wiringPiI2CRead(fd_hyt221);
-	b3 = wiringPiI2CRead(fd_hyt221);
-	b4 = wiringPiI2CRead(fd_hyt221);
-		/* debug output */
-		fprintf(stdout, "%s: b1= %d BIN=", FNAME, b1);
-		byte_to_bin(b1);
-		fprintf(stdout, "%s: b2= %d BIN=", FNAME, b2);
-		byte_to_bin(b2);
-		fprintf(stdout, "%s: b3= %d BIN=", FNAME, b3);
-		byte_to_bin(b3);
-		fprintf(stdout, "%s: b4= %d BIN=", FNAME, b4);
-		byte_to_bin(b4);
-	
-	/* read 4 bytes alternative way*/
-	b1 = wiringPiI2CReadReg8(fd_hyt221, 0x51);
-	b2 = wiringPiI2CReadReg8(fd_hyt221, 0x51);
-	b3 = wiringPiI2CReadReg8(fd_hyt221, 0x51);
-	b4 = wiringPiI2CReadReg8(fd_hyt221, 0x51);
-		/* debug output */
-		fprintf(stdout, "%s: b1= %d BIN=", FNAME, b1);
-		byte_to_bin(b1);
-		fprintf(stdout, "%s: b2= %d BIN=", FNAME, b2);
-		byte_to_bin(b2);
-		fprintf(stdout, "%s: b3= %d BIN=", FNAME, b3);
-		byte_to_bin(b3);
-		fprintf(stdout, "%s: b4= %d BIN=", FNAME, b4);
-		byte_to_bin(b4);
-
-		if (b1 & 0x4000) {
-		fprintf(stdout, "%s: stale bit (15) is set, no new value has been calculated!\n", FNAME);
-	} else if (b1 & 0x8000) {
-		fprintf(stdout, "%s: command mode bit (16) is set, module in command mode!\n", FNAME);
+	/* write the DF (data fetch) command to the sensor and check for ACK */
+	i2cdata[0] = HYT221_DF_COMMAND;
+	ackread = write(fd_hyt221, i2cdata, 1);
+	if (ackread != 1) {
+		fprintf(stderr, "Error: %s: no ACK received, DF command probably failed!\n", FNAME);
+	}
+	else
+	{
+		/* read 4 bytes from the sensor */
+		ackread = read(fd_hyt221, i2cdata, 4);
+		if (ackread != 4) {
+			fprintf(stderr, "Error: %s: received %d bytes from sensor. Expected 4 bytes!\n", FNAME, ackread);
 		}
-	/* mask the first 2 bit, humidity is only 14 bit */
-	b1 &= 0x3FFF;
-	/* calculate real humidity */
-	th->hum = (100 * ((b1<<8)|b2)) >> 14;
-		fprintf(stdout, "%s: real Humidity= %d\n", FNAME, th->hum);
-	
-	/* the last 2 bit are not used, temperature is only 14 bit */
-	th->temp = (((((b3<<8)|b4) >> 2) * 165) >> 14) - 40;
-		fprintf(stdout, "%s: real Temperature= %d\n", FNAME, th->temp);
-	
-	close (fd_hyt221);
+		else
+		{
+			/* show me the received data */
+			fprintf(stdout, "DEBUG: %s: received from sensor following 4 bytes:\n", FNAME);
+			for (i=0; i<4; i++) {
+				byte_to_bin(i2cdata[i]);
+			}
+			/* check if the the sensor is in command mode */
+			if (i2cdata[0] & 0x80) {
+				fprintf(stderr, "ERROR: %s: command mode bit (7) is set, module in command mode!\n", FNAME);
+			}
+			/* check if a new value was read */
+			if (i2cdata[0] & 0x40) {
+				fprintf(stderr, "ERROR: %s: stale bit (6) is set, no new value has been calculated!\n", FNAME);
+			}
+			/* get the raw humidity value from byte 1 and 2 */
+			/* mask the first 2 bit, humidity is only 14 bit */
+			hum = i2cdata[0] & 0x3F;
+			/* concatenate the second byte */
+			hum = (hum<<8) | i2cdata[1];
+			/* calculate real humidity */
+			th->hum = (100 * hum) >> 14;
+			fprintf(stdout, "DEBUG: %s: real Humidity= %d\n", FNAME, th->hum);
+			
+			/* get the raw temperature value from byte 3 and 4 */
+			/* the last 2 bit are not used, temperature is only 14 bit */
+			temp = ((i2cdata[2]<<8) | i2cdata[3]) >> 2;
+			th->temp = ((temp * 165) >> 14) - 40;
+			fprintf(stdout, "DEBUG: %s: real Temperature= %d\n", FNAME, th->temp);
+		}
+	}
+	/* close the i2cdevice */
+	close(fd_hyt221);
 return 0;
 }

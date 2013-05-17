@@ -110,7 +110,7 @@ void doSleep(int sec, int nsec)
 	sleeping_time.tv_sec = sec; 
 	sleeping_time.tv_nsec = nsec;
 	errno = 0;
-	printf("DEBUG: before nanosleep\n");
+	fprintf(stdout, "DEBUG: doSleep(): start nanosleep with %d sec plus %d nsec\n", sec, nsec);
 	if(nanosleep(&sleeping_time, inter_sleep_time) != 0)
 	{
 		if (errno == EFAULT)
@@ -271,8 +271,9 @@ void readConfig(char *file, int flag, long *sec, long *nsec)
 
 int main()
 {
+	const char FNAME[] = "main()";
 	double temp = 0.0;
-	double hum = 0.0;
+	int hum = 0;
 	double pres = 0.0;
 	struct temphum th;
 	struct tm timeofday;
@@ -280,23 +281,25 @@ int main()
 	long nsec = 0;
 	int helpI = 0;
 	
-	printf("DEBUG: before readConfig the first\n");
+	fprintf(stdout, "DEBUG: %s: before readConfig the first\n", FNAME);
 	readConfig("critvalues.config", 0, NULL, NULL);
 	
-	printf("DEBUG: before readConfig the second\n");
+	fprintf(stdout, "DEBUG: %s: before readConfig the second\n", FNAME);
 	readConfig("timer.config", 1, &sec, &nsec);
 	
 	while (1)
 	{
 		helpI++;
-		printf("DEBUG: before getTempHum\n");
-		getTempHum(&th);
+		fprintf(stdout, "DEBUG: %s: before getTempHum\n", FNAME);
+		if (!getTempHum(&th)) {
+			fprintf(stdout, "DEBUG: %s: getTempHum returned an error!\n", FNAME);
+		}
 		temp = th.temp;
 		hum = th.hum;
-		printf("DEBUG: before getPres\n");
+		fprintf(stdout, "DEBUG: %s: before getPres\n", FNAME);
 		pres = getPres();
 	
-		printf("DEBUG: before getTime\n");
+		fprintf(stdout, "DEBUG: %s: before getTime\n", FNAME);
 		timeofday = *getTime(&timeofday);
 	
 		/*TODO: 
@@ -304,7 +307,7 @@ int main()
 		* */
 		if (helpI == 60)
 		{
-			printf("DEBUG: before writeToXML\n");
+			fprintf(stdout, "DEBUG: %s: before writeToXML\n", FNAME);
 			if (writeToXML(temp, hum, pres, &timeofday) != 0)
 			{
 				/*TODO- Errorhandling*/
@@ -312,25 +315,25 @@ int main()
 			helpI = 0;
 		}
 		
-		printf("DEBUG: before writeLED-Temp\n");
+		fprintf(stdout, "DEBUG: %s: before writeLED-Temp\n", FNAME);
 		writeLED(isCritical(temp, 't'));
-		printf("DEBUG: before writeLCD-Temp\n");
+		fprintf(stdout, "DEBUG: %s: before writeLCD-Temp\n", FNAME);
 		writeLCD(temp, 't', &timeofday);
-		printf("DEBUG: before doSleep-Temp\n");
+		fprintf(stdout, "DEBUG: %s: before doSleep-Temp\n", FNAME);
 		doSleep(sec, nsec);
 	
-		printf("DEBUG: before writeLED-Hum\n");
+		fprintf(stdout, "DEBUG: %s: before writeLED-Hum\n", FNAME);
 		writeLED(isCritical(hum, 'h'));
-		printf("DEBUG: before writeLCD-Hum\n");
+		fprintf(stdout, "DEBUG: %s: before writeLCD-Hum\n", FNAME);
 		writeLCD(hum, 'h', &timeofday);
-		printf("DEBUG: before doSleep-Hum\n");
+		fprintf(stdout, "DEBUG: %s: before doSleep-Hum\n", FNAME);
 		doSleep(sec, nsec);
 	
-		printf("DEBUG: before writeLED-Temp\n");
+		fprintf(stdout, "DEBUG: %s: before writeLED-Temp\n", FNAME);
 		writeLED(isCritical(pres, 'p'));
-		printf("DEBUG: before writeLCD-Temp\n");
+		fprintf(stdout, "DEBUG: %s: before writeLCD-Temp\n", FNAME);
 		writeLCD(pres, 'p', &timeofday);
-		printf("DEBUG: before doSleep-Temp\n");
+		fprintf(stdout, "DEBUG: %s: before doSleep-Temp\n", FNAME);
 		doSleep(sec, nsec);
 	}
 	return 0;

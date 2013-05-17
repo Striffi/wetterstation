@@ -5,12 +5,14 @@
 #include <unistd.h>
 #include <stdio.h>
 
+#define I2C_ADR_BMP180 0x77
 #define OSS 1 /* Oversampling_setting = 1 - > conversion time 7,5 ms */
 
 extern double getPres() {
-	char FNAME[] = "getPres";
+	const char FNAME[] = "getPres()";
 	double pressure = 0;
 	double p0; /* Pressure at sea level*/
+	const double altitude = 172.0; /* altitude above mean sea level in meters of the pressure sensor */
 	long int p = 0;
 	
 	short AC1 = 0;
@@ -153,15 +155,15 @@ extern double getPres() {
 	X2 = (-7357 * p) >> 16;
 	pressure = p + ((X1 + X2 + 3791) >> 4);
 	
-	/* respecting sea level*/
-	
-	p0 = p / pow((1 -(172 / 44330)), 5.255);
+	/* respecting sea level */
+	p0 = (1.0 - (altitude / 44330.0));
+	p0 = pressure / (pow(p0, 5.255));
 	
 	pressure = pressure/100.0;
 	p0 = p0 / 100.0;
 	
-	fprintf(stdout, "%s: real pressure = %4.0f HPa\n", FNAME, pressure);
-	fprintf(stdout, "%s: real pressure at sea level = %4.0f HPa\n", FNAME, p0);
+	fprintf(stdout, "DEBUG: %s: real pressure = %4.0f HPa\n", FNAME, pressure);
+	fprintf(stdout, "DEBUG: %s: real pressure at sea level = %4.0f HPa\n", FNAME, p0);
 	close (fd_bosch);
 	return pressure;
 }
