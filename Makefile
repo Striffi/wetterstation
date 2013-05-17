@@ -3,7 +3,7 @@
 ## 
 ## @author Jonas Marosi
 ## 
-## @date 2013-05-05
+## @date 2013-05-18
 ##
 ## @version $Revision: 1.1 $
 ##
@@ -27,10 +27,10 @@ HEADERCOMMON := common.h
 	$(CC) $(CFlags) -c $<
 
 all : main
-	
+
 main : $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBJECTWRITELCD) $(OBJECTWRITELED)
 	$(CC) $(CFlags) -o $@ $^ -lwiringPi -lm
 
 clean:
-	$(RM) main getPress getTempHum writeLCD writeLED $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBEJCTWRITELED) $(OBJECTWRITELCD)
+	$(RM) main $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBJECTWRITELED) $(OBJECTWRITELCD)
 

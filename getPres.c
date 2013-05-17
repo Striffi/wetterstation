@@ -1,9 +1,7 @@
-#include <wiringPi.h>
+#include "common.h"
 #include <wiringPiI2C.h>
 #include <math.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <math.h>
 
 #define OSS 1 /* Oversampling_setting = 1 - > conversion time 7,5 ms */
 
@@ -51,11 +49,7 @@ extern double getPres() {
 	
 	int fd_bosch;
 	
-	printf("Setting up wiringPi ....!\n");
-
-	if (wiringPiSetup () == -1)
-		return 1;
-	fd_bosch = wiringPiI2CSetup(0x77);	
+	fd_bosch = wiringPiI2CSetup(0x77);
 	if (fd_bosch == -1) {
 		printf("Error on setting up I2C for Bosch\n");
  		return 1;

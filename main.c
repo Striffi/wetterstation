@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <errno.h>
 #include <time.h>
-#include <stdlib.h>
-#include <string.h>
 #include <limits.h>
 #include "common.h"
 #include "mode.h"
@@ -287,12 +283,18 @@ int main()
 	fprintf(stdout, "DEBUG: %s: before readConfig the second\n", FNAME);
 	readConfig("timer.config", 1, &sec, &nsec);
 	
+	/* intitialize WiringPi */
+	fprintf(stdout, "DEBUG: %s: initialize WiringPi\n", FNAME);
+	if (wiringPiSetup () == -1) {
+		fprintf(stderr, "ERROR: %s: cannot initialize WiringPi\n", FNAME);
+	}
+	
 	while (1)
 	{
 		helpI++;
 		fprintf(stdout, "DEBUG: %s: before getTempHum\n", FNAME);
 		if (getTempHum(&th) != 0) {
-			fprintf(stdout, "DEBUG: %s: getTempHum returned an error!\n", FNAME);
+			fprintf(stderr, "ERROR: %s: getTempHum returned an error!\n", FNAME);
 		}
 		temp = th.temp;
 		hum = th.hum;
