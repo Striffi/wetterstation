@@ -1,7 +1,6 @@
 #include "common.h"
 #include <wiringPiI2C.h>
 #include <math.h>
-#include <unistd.h>
 
 #define OSS 1 /* Oversampling_setting = 1 - > conversion time 7,5 ms */
 

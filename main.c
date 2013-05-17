@@ -2,6 +2,7 @@
 #include <limits.h>
 #include "common.h"
 #include "mode.h"
+#include <lcd.h>
 
 long PRESVALUES[8];
 long HUMVALUES[8];
@@ -269,11 +270,12 @@ int main()
 {
 	const char FNAME[] = "main()";
 	double temp = 0.0;
-	int hum = 0;
+	double hum  = 0.0;
 	double pres = 0.0;
+	int fd_lcd  = -1;
 	struct temphum th;
 	struct tm timeofday;
-	long sec = 0;
+	long  sec = 0;
 	long nsec = 0;
 	int helpI = 0;
 	
@@ -287,6 +289,12 @@ int main()
 	fprintf(stdout, "DEBUG: %s: initialize WiringPi\n", FNAME);
 	if (wiringPiSetup () == -1) {
 		fprintf(stderr, "ERROR: %s: cannot initialize WiringPi\n", FNAME);
+	}
+	/* initialize LCD: rows, columns, bit, wiringpi pin for RS, E, data4, data5, data6, data7 */
+	fd_lcd = lcdInit (2, 16, 4, 11, 10, 6, 5, 4, 1, 3, 3, 3, 3);
+	if (fd_lcd == -1) {
+		fprintf(stdout, "ERROR: %s: lcdInit() failed\n", FNAME);
+		return -1;
 	}
 	
 	while (1)
@@ -320,21 +328,21 @@ int main()
 		fprintf(stdout, "DEBUG: %s: before writeLED-Temp\n", FNAME);
 		writeLED(isCritical(temp, 't'));
 		fprintf(stdout, "DEBUG: %s: before writeLCD-Temp\n", FNAME);
-		writeLCD(temp, 't', &timeofday);
+		writeLCD(fd_lcd, temp, 't', &timeofday);
 		fprintf(stdout, "DEBUG: %s: before doSleep-Temp\n", FNAME);
 		doSleep(sec, nsec);
 	
 		fprintf(stdout, "DEBUG: %s: before writeLED-Hum\n", FNAME);
 		writeLED(isCritical(hum, 'h'));
 		fprintf(stdout, "DEBUG: %s: before writeLCD-Hum\n", FNAME);
-		writeLCD(hum, 'h', &timeofday);
+		writeLCD(fd_lcd, hum, 'h', &timeofday);
 		fprintf(stdout, "DEBUG: %s: before doSleep-Hum\n", FNAME);
 		doSleep(sec, nsec);
 	
 		fprintf(stdout, "DEBUG: %s: before writeLED-Temp\n", FNAME);
 		writeLED(isCritical(pres, 'p'));
 		fprintf(stdout, "DEBUG: %s: before writeLCD-Temp\n", FNAME);
-		writeLCD(pres, 'p', &timeofday);
+		writeLCD(fd_lcd, pres, 'p', &timeofday);
 		fprintf(stdout, "DEBUG: %s: before doSleep-Temp\n", FNAME);
 		doSleep(sec, nsec);
 	}
