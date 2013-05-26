@@ -119,17 +119,6 @@ void doSleep(int sec, int nsec)
 	}
 }
 
-/*TODO*/
-int writeToXML(double temp, double hum, double pres, struct tm *timeofday)
-{
-	temp=temp;
-	hum=hum;
-	pres=pres;
-	timeofday=timeofday;
-	printf("DEBUG: func writeToXML\n");
-	return 0;
-}
-
 struct tm *getTime(struct tm *timeofday)
 {
 	time_t now;
@@ -266,29 +255,14 @@ void readConfig(char *file, int flag, long *sec, long *nsec)
 	
 }
 
-int main()
+int init_wipi_lcd(char* FNAME)
 {
-	const char FNAME[] = "main()";
-	double temp = 0.0;
-	double hum  = 0.0;
-	double pres = 0.0;
-	int fd_lcd  = -1;
-	struct temphum th;
-	struct tm timeofday;
-	long  sec = 0;
-	long nsec = 0;
-	int helpI = 0;
-	
-	fprintf(stdout, "DEBUG: %s: before readConfig the first\n", FNAME);
-	readConfig("critvalues.config", 0, NULL, NULL);
-	
-	fprintf(stdout, "DEBUG: %s: before readConfig the second\n", FNAME);
-	readConfig("timer.config", 1, &sec, &nsec);
-	
+	int fd_lcd = -1;
 	/* intitialize WiringPi */
 	fprintf(stdout, "DEBUG: %s: initialize WiringPi\n", FNAME);
 	if (wiringPiSetup () == -1) {
 		fprintf(stderr, "ERROR: %s: cannot initialize WiringPi\n", FNAME);
+		return -1;
 	}
 	/* initialize LCD: rows, columns, bit, wiringpi pin for RS, E, data4, data5, data6, data7 */
 	fd_lcd = lcdInit (2, 16, 4, 11, 10, 6, 5, 4, 1, 3, 3, 3, 3);
@@ -296,6 +270,32 @@ int main()
 		fprintf(stdout, "ERROR: %s: lcdInit() failed\n", FNAME);
 		return -1;
 	}
+	return 0;
+}
+
+int main()
+{
+	const char FNAME[] = "main()";
+	double temp = 0.0;
+	double hum  = 0.0;
+	double pres = 0.0;
+	struct temphum th;
+	struct tm timeofday;
+	long  sec = 0;
+	long nsec = 0;
+	int helpI = 0;
+	
+	if (init_wipi_lcd(FNAME) == -1)
+	{
+		exit(EXIT_FAILURE);
+	}
+	
+	fprintf(stdout, "DEBUG: %s: before readConfig the first\n", FNAME);
+	readConfig("critvalues.config", 0, NULL, NULL);
+	
+	fprintf(stdout, "DEBUG: %s: before readConfig the second\n", FNAME);
+	readConfig("timer.config", 1, &sec, &nsec);
+	
 	
 	while (1)
 	{
@@ -307,20 +307,23 @@ int main()
 		temp = th.temp;
 		hum = th.hum;
 		fprintf(stdout, "DEBUG: %s: before getPres\n", FNAME);
-		pres = getPres();
+		if ((pres = getPres()) < 0)
+		{
+			fprintf(stderr, "ERROR: %s: getPres returned an error!\n", FNAME);
+		}
 	
 		fprintf(stdout, "DEBUG: %s: before getTime\n", FNAME);
 		timeofday = *getTime(&timeofday);
 	
 		/*TODO: 
-		* XML parser and writer
+		* write to DB
 		* */
 		if (helpI == 60)
 		{
-			fprintf(stdout, "DEBUG: %s: before writeToXML\n", FNAME);
-			if (writeToXML(temp, hum, pres, &timeofday) != 0)
+			fprintf(stdout, "DEBUG: %s: before writeToDB\n", FNAME);
+			if (writeToDB(&timeofday, temp, hum, pres) != 0)
 			{
-				/*TODO- Errorhandling*/
+				fprintf(stderr, "ERROR: %s: write to DB failed\n", FNAME);
 			}
 			helpI = 0;
 		}

@@ -1,0 +1,9 @@
+#include "common.h"
+
+
+extern int writeToDB(const struct tm *timestamp, double temp, double hum, double pres)
+{
+
+	
+	return 0;
+}
