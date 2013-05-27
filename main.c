@@ -138,7 +138,7 @@ void checkstrtolErrors(long *value)
 	}
 }
 
-void readConfig(char *file, int flag, long *sec, long *nsec)
+void readConfig(char *file, int flag, long *sec, long *nsec, int *pers_interval)
 {
 	FILE *config;
 	char buf[80];
@@ -220,6 +220,20 @@ void readConfig(char *file, int flag, long *sec, long *nsec)
 							}
 							break;
 						}
+						case 2:{
+							printf("DEBUG: %d value strtol - flag=1\n", i);
+							*pers_interval = strtol(help+1, &endptrstrtol, 10);
+							/*if ((errno == ERANGE && (*nsec == LONG_MAX || *nsec == LONG_MIN)) || (errno != 0 && *nsec == 0)) {
+								fprintf(stderr, "%s\n",strerror(errno));
+								exit(EXIT_FAILURE);
+							}*/
+							checkstrtolErrors(pers_interval);
+							if (endptrstrtol == help+1) {
+								printf("DEBUG: No digits were found - strtol timer.config\n");
+								exit(EXIT_FAILURE);
+							}
+							break;
+						}
 						default:{
 							printf("DEBUG: error reading timer.config");
 							break;
@@ -283,6 +297,7 @@ int main()
 	struct tm timeofday;
 	long  sec = 0;
 	long nsec = 0;
+	int pers_interval = 0;
 	int helpI = 0;
 	
 	if (init_wipi_lcd(FNAME) == -1)
@@ -291,10 +306,10 @@ int main()
 	}
 	
 	fprintf(stdout, "DEBUG: %s: before readConfig the first\n", FNAME);
-	readConfig("critvalues.config", 0, NULL, NULL);
+	readConfig("critvalues.config", 0, NULL, NULL, NULL);
 	
 	fprintf(stdout, "DEBUG: %s: before readConfig the second\n", FNAME);
-	readConfig("timer.config", 1, &sec, &nsec);
+	readConfig("timer.config", 1, &sec, &nsec, &pers_interval);
 	
 	
 	while (1)
@@ -315,10 +330,7 @@ int main()
 		fprintf(stdout, "DEBUG: %s: before getTime\n", FNAME);
 		timeofday = *getTime(&timeofday);
 	
-		/*TODO: 
-		* write to DB
-		* */
-		if (helpI == 60)
+		if (helpI == pers_interval)
 		{
 			fprintf(stdout, "DEBUG: %s: before writeToDB\n", FNAME);
 			if (writeToDB(&timeofday, temp, hum, pres) != 0)

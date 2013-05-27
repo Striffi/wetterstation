@@ -10,11 +10,6 @@
 ## Last Modified: 2013-05-04 $Author: Roland $
 ##
 
-ECPG = ecpg
-
-%.c: %.pgc
-	$(ECPG) $<
-
 CC := gcc
 CFlags := -Wall -Wextra -Werror -pedantic -g -O3
 RM := rm -f
@@ -23,10 +18,17 @@ OBJECTGETPRESS := getPres.o
 OBJECTGETTEMPHUM := getTempHum.o
 OBJECTWRITELCD := writeLCD.o
 OBJECTWRITELED := writeLED.o
-OBJECTWRITETODB := writeToDB.o -I/usr/include/postgresql -lecpg
+OBJECTWRITETODB := writeToDB.o
+SOURCEWRITETODB := writeToDB.c
 OBJECTMAIN := main.o
 HEADERMODE := mode.h
 HEADERCOMMON := common.h
+ECPG = ecpg
+
+$(SOURCEWRITETODB) : %.pgc
+	$(ECPG) $<
+
+$(OBJECTWRITETODB) : $(SOURCEWRITETODB) -I/usr/include/postgresql -lecpg
 
 %.o : %.c $(HEADERCOMMON) $(HEADERMODE)
 	$(CC) $(CFlags) -c $<
@@ -34,8 +36,7 @@ HEADERCOMMON := common.h
 all : main
 
 main : $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBJECTWRITELCD) $(OBJECTWRITELED) $(OBJECTWRITETODB)
-	$(CC) $(CFlags) -o $@ $^ -lwiringPi -lm -I/usr/include/postgresql -lecpg
+	$(CC) $(CFlags) -o $@ $^ -lwiringPi -lm
 
 clean:
 	$(RM) main $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBJECTWRITELED) $(OBJECTWRITELCD) $(OBJECTWRITETODB)
-
