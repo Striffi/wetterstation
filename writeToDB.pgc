@@ -3,18 +3,49 @@
 
 extern int writeToDB(const struct tm *timestamp, double temp, double hum, double pres)
 {
+const char FNAME[] = "writeToDB()";
+char *timestring = "2010-12-31 23:59:59            ";
+int year   = -1;
+int month  = -1;
+int day    = -1;
+int hour   = -1;
+int minute = -1;
+int second = -1;
+
 timestamp=timestamp;
 temp=temp;
 hum=hum;
 pres=pres;
-	EXEC SQL CONNECT TO wetter@localhost:5432;
 
-	EXEC SQL INSERT INTO weathervalues (time, valuetype, valueOf) VALUES (timestamp, 'Tempreture', temp);
-	
-	EXEC SQL INSERT INTO weathervalues (time, valuetype, valueOf) VALUES (timestamp, 'Huminity', hum);
+year = timestamp->tm_year;
+month = timestamp->tm_mon;
+day = timestamp->tm_mday;
+hour = timestamp->tm_hour;
+minute = timestamp->tm_min;
+second = timestamp->tm_sec;
 
-	EXEC SQL INSERT INTO weathervalues (time, valuetype, valueOf) VALUES (timestamp, 'Presure', pres);
+fprintf(stdout, "DEBUG: %s: year=%d month=%d day=%d hour=%d min=%d sec=%d\n", FNAME, year, month, day, hour, minute, second);
+fprintf(stdout, "Timestamp = %04d-%02d-%02d %02d:%02d:%02d\n", year, month, day, hour, minute, second);
+fprintf(stdout, "DEBUG: %s: Temp = %2.1f\n", FNAME, temp);
+fprintf(stdout, "DEBUG: %s: Hum  = %2.0f\n", FNAME, hum);
+fprintf(stdout, "DEBUG: %s: Pres = %4.0f\n", FNAME, pres);
+
+
+fprintf(stdout, "DEBUG: %s: Time static = %s\n", FNAME, timestring);
+/* TODO: den Timestamp in einen String umwandeln, dann den String dem to_date() übergeben ! */
+/*
+snprintf(timestring, 18, "%04d-%02d-%02d %02d:%02d:%02d", year, month, day, hour, minute, second);
+fprintf(stdout, "DEBUG: %s: Time from timestamp = %s\n", FNAME, timestring);
+*/
+
+	EXEC SQL CONNECT TO wetterstation@127.0.0.1:5432 USER pi;
+	exec sql BEGIN WORK;
+	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS'), 'Temperature', temp);
 	
+	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS'), 'Humidity', hum);
+
+	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS'), 'Presure', pres);
+	exec sql COMMIT WORK;
 	EXEC SQL DISCONNECT CURRENT;
 	return 0;
 }

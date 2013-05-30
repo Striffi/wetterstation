@@ -1,9 +1,8 @@
-
 create table weathervalues (
-	
-	key int primary key not null,	
-	time timestamp,
-	valuetype varchar[20],
-	valueOf decimal
+
+    key bigserial primary key,
+    time timestamp,
+    sensor varchar(20),
+    measurement decimal
 
 );
