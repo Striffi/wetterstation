@@ -3,6 +3,10 @@
 
 extern int writeToDB(const struct tm *timestamp, double temp, double hum, double pres)
 {
+timestamp=timestamp;
+temp=temp;
+hum=hum;
+pres=pres;
 	EXEC SQL CONNECT TO wetter@localhost:5432;
 
 	EXEC SQL INSERT INTO weathervalues (time, valuetype, valueOf) VALUES (timestamp, 'Tempreture', temp);

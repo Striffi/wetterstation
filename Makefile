@@ -7,7 +7,7 @@
 ##
 ## @version $Revision: 1.1 $
 ##
-## Last Modified: 2013-05-04 $Author: Roland $
+## Last Modified: 2013-05-30 $Author: Roland $
 ##
 
 CC := gcc
@@ -24,19 +24,18 @@ OBJECTMAIN := main.o
 HEADERMODE := mode.h
 HEADERCOMMON := common.h
 ECPG := /usr/bin/ecpg
-ECPGFLAGS := -c -I/usr/include/pgsql
 
 .SUFFIXES: .pgc
 .pgc.c:
-	$(ECPG) $(ECPGFLAGS) $?
+	$(ECPG) $?
 
 %.o : %.c $(HEADERCOMMON) $(HEADERMODE)
-	$(CC) $(CFlags) -c $<
+	$(CC) $(CFlags) -c -I/usr/include/postgresql/ $<
 
 all : main
 
 main : $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBJECTWRITELCD) $(OBJECTWRITELED) $(OBJECTWRITETODB)
-	$(CC) $(CFlags) -o $@ $^ -lwiringPi -lm -lecpg
+	$(CC) $(CFlags) -o $@ $^ -lwiringPi -lwiringPiDev -lm -lecpg
 
 clean:
 	$(RM) main $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBJECTWRITELED) $(OBJECTWRITELCD) $(OBJECTWRITETODB)
