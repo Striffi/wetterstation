@@ -138,7 +138,7 @@ void checkstrtolErrors(long *value)
 	}
 }
 
-void readConfig(char *file, int flag, long *sec, long *nsec, int *pers_interval)
+void readConfig(char *file, int flag, long *sec, long *nsec, long *pers_interval)
 {
 	FILE *config;
 	char buf[80];
@@ -229,7 +229,7 @@ void readConfig(char *file, int flag, long *sec, long *nsec, int *pers_interval)
 							}*/
 							checkstrtolErrors(pers_interval);
 							if (endptrstrtol == help+1) {
-								printf("DEBUG: No digits were found - strtol timer.config\n");
+								fprintf(stderr, "ERROR: No digits were found - strtol timer.config\n");
 								exit(EXIT_FAILURE);
 							}
 							break;
@@ -269,7 +269,7 @@ void readConfig(char *file, int flag, long *sec, long *nsec, int *pers_interval)
 	
 }
 
-int init_wipi_lcd(char* FNAME)
+int init_wipi_lcd(const char* FNAME)
 {
 	int fd_lcd = -1;
 	/* intitialize WiringPi */
@@ -284,7 +284,7 @@ int init_wipi_lcd(char* FNAME)
 		fprintf(stdout, "ERROR: %s: lcdInit() failed\n", FNAME);
 		return -1;
 	}
-	return 0;
+	return fd_lcd;
 }
 
 int main()
@@ -297,11 +297,15 @@ int main()
 	struct tm timeofday;
 	long  sec = 0;
 	long nsec = 0;
-	int pers_interval = 0;
+	long pers_interval = 0;
 	int helpI = 0;
+	int fd_lcd = -1;
 	
-	if (init_wipi_lcd(FNAME) == -1)
+	/* initialize the LCD */
+	fd_lcd = init_wipi_lcd(FNAME);
+	if (fd_lcd == -1)
 	{
+		fprintf(stderr, "WARNING: %s: cannot access the LCD.\n", FNAME);
 		exit(EXIT_FAILURE);
 	}
 	

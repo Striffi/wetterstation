@@ -23,12 +23,12 @@ SOURCEWRITETODB := writeToDB.c
 OBJECTMAIN := main.o
 HEADERMODE := mode.h
 HEADERCOMMON := common.h
-ECPG = ecpg
+ECPG := /usr/bin/ecpg
+ECPGFLAGS := -c -I/usr/include/pgsql
 
-$(SOURCEWRITETODB) : %.pgc
-	$(ECPG) $<
-
-$(OBJECTWRITETODB) : $(SOURCEWRITETODB) -I/usr/include/postgresql -lecpg
+.SUFFIXES: .pgc
+.pgc.c:
+	$(ECPG) $(ECPGFLAGS) $?
 
 %.o : %.c $(HEADERCOMMON) $(HEADERMODE)
 	$(CC) $(CFlags) -c $<
@@ -36,7 +36,7 @@ $(OBJECTWRITETODB) : $(SOURCEWRITETODB) -I/usr/include/postgresql -lecpg
 all : main
 
 main : $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBJECTWRITELCD) $(OBJECTWRITELED) $(OBJECTWRITETODB)
-	$(CC) $(CFlags) -o $@ $^ -lwiringPi -lm
+	$(CC) $(CFlags) -o $@ $^ -lwiringPi -lm -lecpg
 
 clean:
 	$(RM) main $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBJECTWRITELED) $(OBJECTWRITELCD) $(OBJECTWRITETODB)
