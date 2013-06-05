@@ -1,8 +1,8 @@
 #include <wiringPi.h>
 #include <stdio.h>
-#include "common.h"
+#include <pthread.h>
 
-int LED_mode;
+int LED_mode = 0;
 
 /* 1 - red fast blinking - very bad
  * 2 - red slowly blinking - bad
@@ -11,9 +11,8 @@ int LED_mode;
  * 5 - green fast blinking - too good
 */
 
-PI_THREAD (LED_output) {
-dummy = dummy;
-/*int mode =(int) &dummy;*/
+void* LED_output() {
+
 while (1) {
 
 switch (LED_mode) {
@@ -24,7 +23,7 @@ switch (LED_mode) {
                 delay(250);
                 digitalWrite(1,0);
                 delay(250);
-								break;
+		break;
 
 	case 2:
 
@@ -35,7 +34,7 @@ switch (LED_mode) {
                 delay(1000);
                 break;
       
-  case 3:
+  	case 3:
 
 		pinMode(0,OUTPUT);
 		pinMode(1,OUTPUT);
@@ -79,17 +78,20 @@ switch (LED_mode) {
 return 0;
 }
 
-extern void writeLED(uint8_t mode) {
+extern void writeLED(int mode) {
 int x = -1;
-LED_mode = mode;
+pthread_t thread;
 
-if (wiringPiSetup() == -1)
-        printf("Troubles with WiringPi ...\n");
+/* start thread only if mode has changed */
+if (mode != LED_mode) {
+	if (mode != 0) pthread_cancel(thread); /* if existing, cancel old thread*/
 
-x = piThreadCreate(LED_output);
-
-if (x != 0) printf ("LED_output didn´t started\n");
+	LED_mode = mode;
 	
+	x = pthread_create(&thread, NULL, &LED_output, NULL);
+
+	if (x != 0) printf ("LED_output didn´t started\n");
+	}
 }
 
 
