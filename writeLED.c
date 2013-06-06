@@ -18,33 +18,33 @@ while (1) {
 switch (LED_mode) {
 	
 	case 1:
-		pinMode(1,OUTPUT);
-                digitalWrite(1,1);
+		pinMode(3,OUTPUT);
+                digitalWrite(3,1);
                 delay(250);
-                digitalWrite(1,0);
+                digitalWrite(3,0);
                 delay(250);
 		break;
 
 	case 2:
 
-		pinMode(1,OUTPUT);
-                digitalWrite(1,1);
+		pinMode(3,OUTPUT);
+                digitalWrite(3,1);
                 delay(1000);
-                digitalWrite(1,0);
+                digitalWrite(3,0);
                 delay(1000);
                 break;
       
   	case 3:
 
 		pinMode(0,OUTPUT);
-		pinMode(1,OUTPUT);
+		pinMode(3,OUTPUT);
                 digitalWrite(0,1);
                 delay(500);
                 digitalWrite(0,0);
                 delay(2000);
-                digitalWrite(1,1);
+                digitalWrite(3,1);
                 delay(500);
-                digitalWrite(1,0);
+                digitalWrite(3,0);
                 delay(2000);
                 break;
 	case 4:
@@ -66,10 +66,10 @@ switch (LED_mode) {
 
 	case -1:
 
-                pinMode(1,OUTPUT);
-                digitalWrite(1,1);
+                pinMode(3,OUTPUT);
+                digitalWrite(3,1);
                 delay(500);
-                digitalWrite(1,0);
+                digitalWrite(3,0);
                 delay(500);
                 break;
 
@@ -84,9 +84,14 @@ pthread_t thread;
 
 /* start thread only if mode has changed */
 if (mode != LED_mode) {
-	if (mode != 0) pthread_cancel(thread); /* if existing, cancel old thread*/
+	if (mode != 0) pthread_cancel(thread); /* cancel old thread*/
 
 	LED_mode = mode;
+	/*
+	if (wiringPiSetup() == -1)
+        	printf("Troubles with WiringPi ...\n");
+
+	x = piThreadCreate(LED_output);*/
 	
 	x = pthread_create(&thread, NULL, &LED_output, NULL);
 
