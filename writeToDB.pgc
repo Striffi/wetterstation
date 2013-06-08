@@ -26,54 +26,30 @@ EXEC SQL WHENEVER SQLERROR CALL print_sqlca();
 
 EXEC SQL BEGIN DECLARE SECTION;
 /*timestamp ts;*/
-double tempreture;
-double humidity;
-double presure;
+double t = temp;
+double h = hum;
+double p = pres;
 EXEC SQL END DECLARE SECTION;
-const char FNAME[] = "writeToDB()";
-char *timestring = "2010-12-31 23:59:59            ";
-int year   = -1;
-int month  = -1;
-int day    = -1;
-int hour   = -1;
-int minute = -1;
-int second = -1;
-tempreture = temp;
-humidity = hum;
-presure = pres;
-timestamp=timestamp;
-/*ts = PGTYPEStimestamp_from_asc("2000-01-01 00:00:00", NULL);*/
-year = timestamp->tm_year;
-month = timestamp->tm_mon;
-day = timestamp->tm_mday;
-hour = timestamp->tm_hour;
-minute = timestamp->tm_min;
-second = timestamp->tm_sec;
 
-fprintf(stdout, "DEBUG: %s: year=%d month=%d day=%d hour=%d min=%d sec=%d\n", FNAME, year, month, day, hour, minute, second);
-fprintf(stdout, "Timestamp = %04d-%02d-%02d %02d:%02d:%02d\n", year, month, day, hour, minute, second);
+const char FNAME[] = "writeToDB()";
+
+/*ts = PGTYPEStimestamp_from_asc("2000-01-01 00:00:00", NULL);*/
+
+fprintf(stdout, "Timestamp = %04d-%02d-%02d %02d:%02d:%02d\n", timestamp->tm_year, timestamp->tm_mon, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
 fprintf(stdout, "DEBUG: %s: Temp = %2.1f\n", FNAME, temp);
 fprintf(stdout, "DEBUG: %s: Hum  = %2.0f\n", FNAME, hum);
 fprintf(stdout, "DEBUG: %s: Pres = %4.0f\n", FNAME, pres);
 
-
-fprintf(stdout, "DEBUG: %s: Time static = %s\n", FNAME, timestring);
-/* TODO: den Timestamp in einen String umwandeln, dann den String dem to_date() übergeben ! */
-/*
-snprintf(timestring, 18, "%04d-%02d-%02d %02d:%02d:%02d", year, month, day, hour, minute, second);
-fprintf(stdout, "DEBUG: %s: Time from timestamp = %s\n", FNAME, timestring);
-*/
-
 	EXEC SQL CONNECT TO wetterstation USER root;
 	fprintf(stdout, "DEBUG: after DB-Connect");
 	/*exec sql BEGIN WORK;*/
-	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ /*:ts*/ null, 'Temperature', :tempreture);
+	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ /*:ts*/ null, 'Temperature', :t);
 	EXEC SQL COMMIT;
 	fprintf(stdout, "DEBUG: after first insert");
-	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ /*:ts*/ null, 'Humidity', :humidity);
+	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ /*:ts*/ null, 'Humidity', :h);
 	EXEC SQL COMMIT;
 fprintf(stdout, "DEBUG: after second insert");
-	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ /*:ts*/ null, 'Presure', :presure);
+	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ /*:ts*/ null, 'Pressure', :p);
 	EXEC SQL COMMIT;
 fprintf(stdout, "DEBUG: after third insert");
 	/*exec sql COMMIT WORK;*/
