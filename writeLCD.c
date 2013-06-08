@@ -9,10 +9,10 @@ extern int8_t writeLCD(const int fd_lcd, const double value, const char mode, co
 	char *ssec   = NULL;
 	char *svalue = NULL;
 	
-	shour  = (char *) malloc(sizeof(char)*3 + 1);
-	smin   = (char *) malloc(sizeof(char)*3 + 1);
-	ssec   = (char *) malloc(sizeof(char)*3 + 1);
-	svalue = (char *) malloc(sizeof(char)*7 + 1);
+	shour  = (char *) alloca(sizeof(char)*3 + 1);
+	smin   = (char *) alloca(sizeof(char)*3 + 1);
+	ssec   = (char *) alloca(sizeof(char)*3 + 1);
+	svalue = (char *) alloca(sizeof(char)*7 + 1);
 	
 	snprintf(shour,  3, "%02d", time->tm_hour);
 	snprintf(smin,   3, "%02d", time->tm_min);

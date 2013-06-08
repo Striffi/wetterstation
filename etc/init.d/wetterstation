@@ -1,0 +1,21 @@
+﻿#! /bin/sh
+# /etc/init.d/wetterstation
+
+touch /var/lock/wetterstation
+
+case "$1" in
+	start)
+		echo "starting Wetterstation ... "
+		cd /home/pi/wetterstation
+		./main > /dev/null &
+		;;
+	stop)
+		echo "Killing RasPi RSS Reader ..."
+		killall main
+		;;
+	*)
+		echo "Usage: /etc/init.d/wetterstation {start|stop}"
+		exit 1
+		;;
+esac
+exit 0

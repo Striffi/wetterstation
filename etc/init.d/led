@@ -1,0 +1,24 @@
+﻿#! /bin/sh
+# /etc/init.d/led
+
+touch /var/lock/led
+
+case "$1" in
+	start | green)
+		echo "green LED"
+		/home/pi/led/led.sh green > /dev/null
+		;;
+	red)
+		echo "red LED"
+		/home/pi/led/led.sh red > /dev/null
+		;;
+	stop | off | kill)
+		echo "off LED"
+		/home/pi/led/led.sh off > /dev/null
+		;;
+	*)
+		echo "Usage: /etc/init.d/led {green|red|off}"
+		exit 1
+		;;
+esac
+exit 0
