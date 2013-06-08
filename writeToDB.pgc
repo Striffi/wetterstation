@@ -64,7 +64,7 @@ snprintf(timestring, 18, "%04d-%02d-%02d %02d:%02d:%02d", year, month, day, hour
 fprintf(stdout, "DEBUG: %s: Time from timestamp = %s\n", FNAME, timestring);
 */
 
-	EXEC SQL CONNECT TO wetterstation@localhost:5432 USER pi;
+	EXEC SQL CONNECT TO wetterstation USER root;
 	fprintf(stdout, "DEBUG: after DB-Connect");
 	/*exec sql BEGIN WORK;*/
 	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ /*:ts*/ null, 'Temperature', :tempreture);
