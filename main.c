@@ -3,6 +3,8 @@
 #include "common.h"
 #include "mode.h"
 #include <lcd.h>
+#include <wiringPiI2C.h>
+
 
 long PRESVALUES[8];
 long HUMVALUES[8];
@@ -287,6 +289,18 @@ int init_wipi_lcd(const char* FNAME)
 	return fd_lcd;
 }
 
+int init_wipi_bosch(const char* FNAME)
+{
+	int fd_bosch = -1;
+	/* initialize i2c to Bosch BMP180 */
+	fd_bosch = wiringPiI2CSetup(0x77);
+	if (fd_bosch == -1) {
+		fprintf(stdout, "ERROR: %s: wiringPiI2CSetup() failed\n", FNAME);
+		return -1;
+	}
+	return fd_bosch;
+}
+
 int main()
 {
 	const char FNAME[] = "main()";
@@ -300,6 +314,7 @@ int main()
 	long pers_interval = 0;
 	int helpI = 0;
 	int fd_lcd = -1;
+	int fd_bosch = -1;
 	
 	/* initialize the LCD */
 	fd_lcd = init_wipi_lcd(FNAME);
@@ -315,6 +330,13 @@ int main()
 	fprintf(stdout, "DEBUG: %s: before readConfig the second\n", FNAME);
 	readConfig("timer.config", 1, &sec, &nsec, &pers_interval);
 	
+	/* initialize the Bosch BMP180 */
+	fd_bosch = init_wipi_bosch(FNAME);
+	if (fd_bosch == -1)
+	{
+		fprintf(stderr, "WARNING: %s: cannot access the BMP180.\n", FNAME);
+		exit(EXIT_FAILURE);
+	}
 	
 	while (1)
 	{
@@ -326,7 +348,7 @@ int main()
 		temp = th.temp;
 		hum = th.hum;
 		fprintf(stdout, "DEBUG: %s: before getPres\n", FNAME);
-		if ((pres = getPres()) < 0)
+		if ((pres = getPres(fd_bosch)) < 0)
 		{
 			fprintf(stderr, "ERROR: %s: getPres returned an error!\n", FNAME);
 		}

@@ -1,16 +1,15 @@
 #include "common.h"
-#include <wiringPiI2C.h>
+#include <wiringPiI2C.h> 
 #include <math.h>
 
 #define OSS 1 /* Oversampling_setting = 1 - > conversion time 7,5 ms */
 
-extern double getPres() {
+extern double getPres(const int fd_bosch) {
 	const char FNAME[]= "getPres()";
 	double pressure = 0;
 	double temperature = 0;
 	double reduced_pressure = 0;
 	double Tm = 0;
-	/*static double p0 = 1013.25 ;*/ /* Pressure at sea level-international barometric formula*/
 	
 	const double altitude = 180.0; /* Altitude of Floridsdorf in meters above mean sea level */
 
@@ -46,13 +45,13 @@ extern double getPres() {
 	long p = 0;
 	long t = 0;
 	
-	int fd_bosch;
+	/*int fd_bosch;
 	
 	fd_bosch = wiringPiI2CSetup(0x77);
 	if (fd_bosch == -1) {
 		printf("Error on setting up I2C for Bosch\n");
  		return 1;
-	}
+	}*/
 
 	/* Reading Calibration Data */
 
