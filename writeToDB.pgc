@@ -1,5 +1,7 @@
 #include <pgtypes_timestamp.h>
+#include <alloca.h>
 #include "common.h"
+
 
 void
 print_sqlca()
@@ -50,13 +52,13 @@ fprintf(stdout, "DEBUG: %s: Pres = %4.0f\n", FNAME, pres);
 	EXEC SQL CONNECT TO wetterstation USER root;
 	fprintf(stdout, "DEBUG: after DB-Connect");
 	/*exec sql BEGIN WORK;*/
-	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ :ts, 'Temperature', :t);
+	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES ( :ts, 'Temperature', :t);
 	EXEC SQL COMMIT;
 	fprintf(stdout, "DEBUG: after first insert");
-	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ /*:ts*/ null, 'Humidity', :h);
+	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (:ts, 'Humidity', :h);
 	EXEC SQL COMMIT;
 fprintf(stdout, "DEBUG: after second insert");
-	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ /*:ts*/ null, 'Pressure', :p);
+	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (:ts, 'Pressure', :p);
 	EXEC SQL COMMIT;
 fprintf(stdout, "DEBUG: after third insert");
 	/*exec sql COMMIT WORK;*/
