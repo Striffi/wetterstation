@@ -11,7 +11,7 @@
 ##
 
 CC := gcc
-CFlags := -Wall -Wextra -Werror -pedantic -g -O3
+CFlags := -Wall -Wextra -Werror -pedantic -g -O3 -std=c99
 RM := rm -f
 
 OBJECTGETPRESS := getPres.o
@@ -35,7 +35,7 @@ ECPG := /usr/bin/ecpg
 all : main
 
 main : $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBJECTWRITELCD) $(OBJECTWRITELED) $(OBJECTWRITETODB)
-	$(CC) $(CFlags) -o $@ $^ -lwiringPi -lwiringPiDev -lm -lecpg
+	$(CC) $(CFlags) -o $@ $^ -lwiringPi -lwiringPiDev -lm -lecpg -lpgtypes
 
 clean:
 	$(RM) main $(OBJECTMAIN) $(OBJECTGETTEMPHUM) $(OBJECTGETPRESS) $(OBJECTWRITELED) $(OBJECTWRITELCD) $(OBJECTWRITETODB)

@@ -1,4 +1,4 @@
-/*#include <pgtypes_timestamp.h>*/
+#include <pgtypes_timestamp.h>
 #include "common.h"
 
 void
@@ -19,13 +19,13 @@ print_sqlca()
 
 
 
-extern int writeToDB(const struct tm *timestamp, double temp, double hum, double pres)
+extern int writeToDB(const struct tm *timest, double temp, double hum, double pres)
 {
 EXEC SQL WHENEVER SQLWARNING CALL print_sqlca();
 EXEC SQL WHENEVER SQLERROR CALL print_sqlca();
 
 EXEC SQL BEGIN DECLARE SECTION;
-/*timestamp ts;*/
+timestamp ts;
 double t = temp;
 double h = hum;
 double p = pres;
@@ -33,9 +33,9 @@ EXEC SQL END DECLARE SECTION;
 
 const char FNAME[] = "writeToDB()";
 
-/*ts = PGTYPEStimestamp_from_asc("2000-01-01 00:00:00", NULL);*/
+ts = PGTYPEStimestamp_from_asc("2000-01-01 00:00:00", NULL);
 
-fprintf(stdout, "DEBUG: %s: Timestamp = %04d-%02d-%02d %02d:%02d:%02d\n", FNAME, timestamp->tm_year+1900, timestamp->tm_mon+1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
+fprintf(stdout, "DEBUG: %s: Timestamp = %04d-%02d-%02d %02d:%02d:%02d\n", FNAME, timest->tm_year+1900, timest->tm_mon+1, timest->tm_mday, timest->tm_hour, timest->tm_min, timest->tm_sec);
 fprintf(stdout, "DEBUG: %s: Temp = %2.1f\n", FNAME, temp);
 fprintf(stdout, "DEBUG: %s: Hum  = %2.0f\n", FNAME, hum);
 fprintf(stdout, "DEBUG: %s: Pres = %4.0f\n", FNAME, pres);
@@ -43,7 +43,7 @@ fprintf(stdout, "DEBUG: %s: Pres = %4.0f\n", FNAME, pres);
 	EXEC SQL CONNECT TO wetterstation USER root;
 	fprintf(stdout, "DEBUG: after DB-Connect");
 	/*exec sql BEGIN WORK;*/
-	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ /*:ts*/ null, 'Temperature', :t);
+	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ :ts, 'Temperature', :t);
 	EXEC SQL COMMIT;
 	fprintf(stdout, "DEBUG: after first insert");
 	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/ /*:ts*/ null, 'Humidity', :h);

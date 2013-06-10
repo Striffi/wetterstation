@@ -6,7 +6,7 @@
 /* End of automatic include section */
 
 #line 1 "writeToDB.pgc"
-/*#include <pgtypes_timestamp.h>*/
+#include <pgtypes_timestamp.h>
 #include "common.h"
 
 void
@@ -27,7 +27,7 @@ print_sqlca()
 
 
 
-extern int writeToDB(const struct tm *timestamp, double temp, double hum, double pres)
+extern int writeToDB(const struct tm *timest, double temp, double hum, double pres)
 {
 /* exec sql whenever sql_warning  call print_sqlca ( ) ; */
 #line 24 "writeToDB.pgc"
@@ -37,139 +37,120 @@ extern int writeToDB(const struct tm *timestamp, double temp, double hum, double
 
 
 /* exec sql begin declare section */
-/*timestamp ts;*/
  
- 
- 
+   
+   
+   
 
+#line 28 "writeToDB.pgc"
+ timestamp ts ;
+ 
 #line 29 "writeToDB.pgc"
- double tempreture ;
+ double t = temp ;
  
 #line 30 "writeToDB.pgc"
- double humidity ;
+ double h = hum ;
  
 #line 31 "writeToDB.pgc"
- double presure ;
+ double p = pres ;
 /* exec sql end declare section */
 #line 32 "writeToDB.pgc"
 
-const char FNAME[] = "writeToDB()";
-char *timestring = "2010-12-31 23:59:59            ";
-int year   = -1;
-int month  = -1;
-int day    = -1;
-int hour   = -1;
-int minute = -1;
-int second = -1;
-tempreture = temp;
-humidity = hum;
-presure = pres;
-timestamp=timestamp;
-/*ts = PGTYPEStimestamp_from_asc("2000-01-01 00:00:00", NULL);*/
-year = timestamp->tm_year;
-month = timestamp->tm_mon;
-day = timestamp->tm_mday;
-hour = timestamp->tm_hour;
-minute = timestamp->tm_min;
-second = timestamp->tm_sec;
 
-fprintf(stdout, "DEBUG: %s: year=%d month=%d day=%d hour=%d min=%d sec=%d\n", FNAME, year, month, day, hour, minute, second);
-fprintf(stdout, "Timestamp = %04d-%02d-%02d %02d:%02d:%02d\n", year, month, day, hour, minute, second);
+const char FNAME[] = "writeToDB()";
+
+ts = PGTYPEStimestamp_from_asc("2000-01-01 00:00:00", NULL);
+
+fprintf(stdout, "DEBUG: %s: Timestamp = %04d-%02d-%02d %02d:%02d:%02d\n", FNAME, timest->tm_year+1900, timest->tm_mon+1, timest->tm_mday, timest->tm_hour, timest->tm_min, timest->tm_sec);
 fprintf(stdout, "DEBUG: %s: Temp = %2.1f\n", FNAME, temp);
 fprintf(stdout, "DEBUG: %s: Hum  = %2.0f\n", FNAME, hum);
 fprintf(stdout, "DEBUG: %s: Pres = %4.0f\n", FNAME, pres);
 
-
-fprintf(stdout, "DEBUG: %s: Time static = %s\n", FNAME, timestring);
-/* TODO: den Timestamp in einen String umwandeln, dann den String dem to_date() übergeben ! */
-/*
-snprintf(timestring, 18, "%04d-%02d-%02d %02d:%02d:%02d", year, month, day, hour, minute, second);
-fprintf(stdout, "DEBUG: %s: Time from timestamp = %s\n", FNAME, timestring);
-*/
-
-	{ ECPGconnect(__LINE__, 0, "wetterstation" , NULL, NULL , NULL, 0); 
-#line 67 "writeToDB.pgc"
+	{ ECPGconnect(__LINE__, 0, "wetterstation" , "root" , NULL , NULL, 0); 
+#line 43 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 67 "writeToDB.pgc"
+#line 43 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 67 "writeToDB.pgc"
+#line 43 "writeToDB.pgc"
 
 	fprintf(stdout, "DEBUG: after DB-Connect");
 	/*exec sql BEGIN WORK;*/
-	/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*//*:ts*/{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "insert into weathervalues ( time , sensor , measurement ) values ( null , 'Temperature' , $1  )", 
-	ECPGt_double,&(tempreture),(long)1,(long)1,sizeof(double), 
+	/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "insert into weathervalues ( time , sensor , measurement ) values ( $1  , 'Temperature' , $2  )", 
+	ECPGt_timestamp,&(ts),(long)1,(long)1,sizeof(timestamp), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
+	ECPGt_double,&(t),(long)1,(long)1,sizeof(double), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 70 "writeToDB.pgc"
+#line 46 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 70 "writeToDB.pgc"
+#line 46 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 70 "writeToDB.pgc"
+#line 46 "writeToDB.pgc"
 
 	{ ECPGtrans(__LINE__, NULL, "commit");
-#line 71 "writeToDB.pgc"
+#line 47 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 71 "writeToDB.pgc"
+#line 47 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 71 "writeToDB.pgc"
+#line 47 "writeToDB.pgc"
 
 	fprintf(stdout, "DEBUG: after first insert");
 	/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*//*:ts*/{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "insert into weathervalues ( time , sensor , measurement ) values ( null , 'Humidity' , $1  )", 
-	ECPGt_double,&(humidity),(long)1,(long)1,sizeof(double), 
+	ECPGt_double,&(h),(long)1,(long)1,sizeof(double), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 73 "writeToDB.pgc"
+#line 49 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 73 "writeToDB.pgc"
+#line 49 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 73 "writeToDB.pgc"
+#line 49 "writeToDB.pgc"
 
 	{ ECPGtrans(__LINE__, NULL, "commit");
-#line 74 "writeToDB.pgc"
+#line 50 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 74 "writeToDB.pgc"
+#line 50 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 74 "writeToDB.pgc"
+#line 50 "writeToDB.pgc"
 
 fprintf(stdout, "DEBUG: after second insert");
-	/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*//*:ts*/{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "insert into weathervalues ( time , sensor , measurement ) values ( null , 'Presure' , $1  )", 
-	ECPGt_double,&(presure),(long)1,(long)1,sizeof(double), 
+	/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*//*:ts*/{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "insert into weathervalues ( time , sensor , measurement ) values ( null , 'Pressure' , $1  )", 
+	ECPGt_double,&(p),(long)1,(long)1,sizeof(double), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 76 "writeToDB.pgc"
+#line 52 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 76 "writeToDB.pgc"
+#line 52 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 76 "writeToDB.pgc"
+#line 52 "writeToDB.pgc"
 
 	{ ECPGtrans(__LINE__, NULL, "commit");
-#line 77 "writeToDB.pgc"
+#line 53 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 77 "writeToDB.pgc"
+#line 53 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 77 "writeToDB.pgc"
+#line 53 "writeToDB.pgc"
 
 fprintf(stdout, "DEBUG: after third insert");
 	/*exec sql COMMIT WORK;*/
 	{ ECPGdisconnect(__LINE__, "CURRENT");
-#line 80 "writeToDB.pgc"
+#line 56 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 80 "writeToDB.pgc"
+#line 56 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 80 "writeToDB.pgc"
+#line 56 "writeToDB.pgc"
 
 fprintf(stdout, "DEBUG: after DB-Disconnect");
 	return 0;
