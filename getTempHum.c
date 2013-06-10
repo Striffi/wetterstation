@@ -58,7 +58,7 @@ extern int8_t getTempHum(struct temphum *const th) {
 	}
 	
 	/* wait some time for conversion */
-	doSleep(1, 0);
+	doSleep(0, 10000000);
 	
 	/* write the DF (data fetch) command to the sensor and check for ACK */
 	i2cdata[0] = HYT221_DF_COMMAND;
@@ -69,6 +69,7 @@ extern int8_t getTempHum(struct temphum *const th) {
 	else
 	{
 		/* read 4 bytes from the sensor */
+		doSleep(0, 10000000);
 		ackread = read(fd_hyt221, i2cdata, 4);
 		if (ackread != 4) {
 			fprintf(stderr, "ERROR: %s: received %d bytes from sensor. Expected 4 bytes!\n", FNAME, ackread);
@@ -86,7 +87,7 @@ extern int8_t getTempHum(struct temphum *const th) {
 			}
 			/* check if a new value was read */
 			if (i2cdata[0] & 0x40) {
-				fprintf(stderr, "ERROR: %s: stale bit (6) is set, no new value has been calculated!\n", FNAME);
+				fprintf(stdout, "ERROR: %s: stale bit (6) is set, no new value has been calculated!\n", FNAME);
 			}
 			/* get the raw humidity value from byte 1 and 2 */
 			/* mask the first 2 bit, humidity is only 14 bit */

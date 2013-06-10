@@ -365,21 +365,21 @@ int main()
 		}
 		
 		fprintf(stdout, "DEBUG: %s: before writeLED-Temp\n", FNAME);
-		writeLED(isCritical(temp, 't'));
+/*		writeLED(isCritical(temp, 't'));*/
 		fprintf(stdout, "DEBUG: %s: before writeLCD-Temp\n", FNAME);
 		writeLCD(fd_lcd, temp, 't', &timeofday);
 		fprintf(stdout, "DEBUG: %s: before doSleep-Temp\n", FNAME);
 		doSleep(sec, nsec);
 	
 		fprintf(stdout, "DEBUG: %s: before writeLED-Hum\n", FNAME);
-		writeLED(isCritical(hum, 'h'));
+/*		writeLED(isCritical(hum, 'h'));*/
 		fprintf(stdout, "DEBUG: %s: before writeLCD-Hum\n", FNAME);
 		writeLCD(fd_lcd, hum, 'h', &timeofday);
 		fprintf(stdout, "DEBUG: %s: before doSleep-Hum\n", FNAME);
 		doSleep(sec, nsec);
 	
 		fprintf(stdout, "DEBUG: %s: before writeLED-Temp\n", FNAME);
-		writeLED(isCritical(pres, 'p'));
+/*		writeLED(isCritical(pres, 'p'));*/
 		fprintf(stdout, "DEBUG: %s: before writeLCD-Temp\n", FNAME);
 		writeLCD(fd_lcd, pres, 'p', &timeofday);
 		fprintf(stdout, "DEBUG: %s: before doSleep-Temp\n", FNAME);
