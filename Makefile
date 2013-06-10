@@ -11,7 +11,7 @@
 ##
 
 CC := gcc
-CFlags := -Wall -Wextra -Werror -pedantic -g -O3 -std=c99
+CFlags := -Wall -Wextra -Werror -pedantic -g -O3 -D_POSIX_C_SOURCE=199309L -std=c99
 RM := rm -f
 
 OBJECTGETPRESS := getPres.o

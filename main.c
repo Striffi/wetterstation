@@ -1,10 +1,8 @@
-#include <time.h>
 #include <limits.h>
-#include "common.h"
 #include "mode.h"
 #include <lcd.h>
 #include <wiringPiI2C.h>
-
+#include "common.h"
 
 long PRESVALUES[8];
 long HUMVALUES[8];

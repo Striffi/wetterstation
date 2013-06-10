@@ -1,5 +1,4 @@
 #include <pgtypes_timestamp.h>
-#include <alloca.h>
 #include "common.h"
 
 

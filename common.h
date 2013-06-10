@@ -6,6 +6,7 @@
 #include <string.h>
 #include <wiringPi.h>
 #include <unistd.h>
+#include <alloca.h>
 
 struct temphum{
 	double temp;
