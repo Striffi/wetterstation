@@ -4,13 +4,6 @@
 #include <wiringPiI2C.h>
 #include "common.h"
 
-#define LED_VERY_LOW 1
-#define LED_LOW 2
-#define LED_NORMAL 3
-#define LED_HIGH 4
-#define LED_VERY_HIGH 5
-
-
 long PRESVALUES[8];
 long HUMVALUES[8];
 long TEMPVALUES[8];
@@ -33,23 +26,23 @@ int isCritical(double value, char mode)
 		printf("DEBUG: checking temp crit values\n");
 		if (value < TEMPVALUES[0])
 		{
-			return LED_VERY_LOW;
+			return 1;
 		}
 		else if(value > TEMPVALUES[1] && value < TEMPVALUES[2])
 		{
-			return LED_LOW;
+			return 2;
 		}
 		else if(value > TEMPVALUES[3] && value < TEMPVALUES[4])
 		{
-			return LED_NORMAL;
+			return 3;
 		}
 		else if (value > TEMPVALUES[5] && value < TEMPVALUES[6])
 		{
-			return LED_HIGH;
+			return 4;
 		} 
 		else
 		{
-			return LED_VERY_HIGH;
+			return 5;
 		}
 	}
 	else if (mode == 'h')
@@ -57,23 +50,23 @@ int isCritical(double value, char mode)
 		printf("DEBUG: checking hum crit values\n");
 		if (value < HUMVALUES[0])
 		{
-			return LED_VERY_LOW;
+			return 1;
 		}
 		else if(value > HUMVALUES[1] && value < HUMVALUES[2])
 		{
-			return LED_LOW;
+			return 2;
 		}
 		else if(value > HUMVALUES[3] && value < HUMVALUES[4])
 		{
-			return LED_NORMAL;
+			return 3;
 		}
 		else if (value > HUMVALUES[5] && value < HUMVALUES[6])
 		{
-			return LED_HIGH;
+			return 4;
 		} 
 		else
 		{
-			return LED_VERY_HIGH;
+			return 5;
 		}
 	}
 	else if (mode == 'p')
@@ -81,23 +74,23 @@ int isCritical(double value, char mode)
 		printf("DEBUG: checking pres crit values");
 		if (value < PRESVALUES[0])
 		{
-			return LED_VERY_LOW;
+			return 1;
 		}
 		else if(value > PRESVALUES[1] && value < PRESVALUES[2])
 		{
-			return LED_LOW;
+			return 2;
 		}
 		else if(value > PRESVALUES[3] && value < PRESVALUES[4])
 		{
-			return LED_NORMAL;
+			return 3;
 		}
 		else if (value > PRESVALUES[5] && value < PRESVALUES[6])
 		{
-			return LED_HIGH;
+			return 4;
 		} 
 		else
 		{
-			return LED_VERY_HIGH;
+			return 5;
 		}
 	}
 	else
