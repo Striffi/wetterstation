@@ -79,7 +79,6 @@ switch (LED_mode) {
 		digitalWrite(3,0);
                 doSleep(0,250000000);
                 break;
-ø
 	}
 }
 return 0;
