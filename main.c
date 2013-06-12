@@ -4,17 +4,26 @@
 #include <wiringPiI2C.h>
 #include "common.h"
 
+#define LED_VERY_LOW 1
+#define LED_LOW 2
+#define LED_NORMAL 3
+#define LED_HIGH 4
+#define LED_VERY_HIGH 5
+
+
 long PRESVALUES[8];
 long HUMVALUES[8];
 long TEMPVALUES[8];
-/*0 xxx_verylow
- 1 xxx_low_min
- 2 xxx_low_max
- 3 xxx_normal_min
- 4 xxx_normal_max
- 5 xxx_high_min
- 6 xxx_high_max
- 7 xxx_veryhigh*/
+
+/* 0 xxx_verylow  --> LED MODE VERY LOW
+   1 xxx_low_min  
+   2 xxx_low_max --> LED MODE LOW
+   3 xxx_normal_min
+   4 xxx_normal_max -->  LED MODE NORMAL
+   5 xxx_high_min
+   6 xxx_high_max --> LED MODE HIGH
+   7 xxx_veryhigh --> LED MODE VERY HIGH
+*/ 
 
 
 int isCritical(double value, char mode)
@@ -24,23 +33,23 @@ int isCritical(double value, char mode)
 		printf("DEBUG: checking temp crit values\n");
 		if (value < TEMPVALUES[0])
 		{
-			return TEMP_VERYLOW;
+			return LED_VERY_LOW;
 		}
 		else if(value > TEMPVALUES[1] && value < TEMPVALUES[2])
 		{
-			return TEMP_LOW;
+			return LED_LOW;
 		}
 		else if(value > TEMPVALUES[3] && value < TEMPVALUES[4])
 		{
-			return TEMP_NORMAL;
+			return LED_NORMAL;
 		}
 		else if (value > TEMPVALUES[5] && value < TEMPVALUES[6])
 		{
-			return TEMP_HIGH;
+			return LED_HIGH;
 		} 
 		else
 		{
-			return TEMP_VERYHIGH;
+			return LED_VERY_HIGH;
 		}
 	}
 	else if (mode == 'h')
@@ -48,23 +57,23 @@ int isCritical(double value, char mode)
 		printf("DEBUG: checking hum crit values\n");
 		if (value < HUMVALUES[0])
 		{
-			return HUM_VERYLOW;
+			return LED_VERY_LOW;
 		}
 		else if(value > HUMVALUES[1] && value < HUMVALUES[2])
 		{
-			return HUM_LOW;
+			return LED_LOW;
 		}
 		else if(value > HUMVALUES[3] && value < HUMVALUES[4])
 		{
-			return HUM_NORMAL;
+			return LED_NORMAL;
 		}
 		else if (value > HUMVALUES[5] && value < HUMVALUES[6])
 		{
-			return HUM_HIGH;
+			return LED_HIGH;
 		} 
 		else
 		{
-			return HUM_VERYHIGH;
+			return LED_VERY_HIGH;
 		}
 	}
 	else if (mode == 'p')
@@ -72,23 +81,23 @@ int isCritical(double value, char mode)
 		printf("DEBUG: checking pres crit values");
 		if (value < PRESVALUES[0])
 		{
-			return PRES_VERYLOW;
+			return LED_VERY_LOW;
 		}
 		else if(value > PRESVALUES[1] && value < PRESVALUES[2])
 		{
-			return PRES_LOW;
+			return LED_LOW;
 		}
 		else if(value > PRESVALUES[3] && value < PRESVALUES[4])
 		{
-			return PRES_NORMAL;
+			return LED_NORMAL;
 		}
 		else if (value > PRESVALUES[5] && value < PRESVALUES[6])
 		{
-			return PRES_HIGH;
+			return LED_HIGH;
 		} 
 		else
 		{
-			return PRES_VERYHIGH;
+			return LED_VERY_HIGH;
 		}
 	}
 	else
@@ -365,21 +374,21 @@ int main()
 		}
 		
 		fprintf(stdout, "DEBUG: %s: before writeLED-Temp\n", FNAME);
-/*		writeLED(isCritical(temp, 't'));*/
+		writeLED(isCritical(temp, 't'));
 		fprintf(stdout, "DEBUG: %s: before writeLCD-Temp\n", FNAME);
 		writeLCD(fd_lcd, temp, 't', &timeofday);
 		fprintf(stdout, "DEBUG: %s: before doSleep-Temp\n", FNAME);
 		doSleep(sec, nsec);
 	
 		fprintf(stdout, "DEBUG: %s: before writeLED-Hum\n", FNAME);
-/*		writeLED(isCritical(hum, 'h'));*/
+		writeLED(isCritical(hum, 'h'));
 		fprintf(stdout, "DEBUG: %s: before writeLCD-Hum\n", FNAME);
 		writeLCD(fd_lcd, hum, 'h', &timeofday);
 		fprintf(stdout, "DEBUG: %s: before doSleep-Hum\n", FNAME);
 		doSleep(sec, nsec);
 	
 		fprintf(stdout, "DEBUG: %s: before writeLED-Temp\n", FNAME);
-/*		writeLED(isCritical(pres, 'p'));*/
+		writeLED(isCritical(pres, 'p'));
 		fprintf(stdout, "DEBUG: %s: before writeLCD-Temp\n", FNAME);
 		writeLCD(fd_lcd, pres, 'p', &timeofday);
 		fprintf(stdout, "DEBUG: %s: before doSleep-Temp\n", FNAME);
