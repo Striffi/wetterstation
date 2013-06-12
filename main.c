@@ -4,6 +4,13 @@
 #include <wiringPiI2C.h>
 #include "common.h"
 
+#define LED_VERY_LOW 1
+#define LED_LOW 2
+#define LED_NORMAL 3
+#define LED_HIGH 4
+#define LED_VERY_HIGH 5
+#define LED_ERROR -1
+
 long PRESVALUES[8];
 long HUMVALUES[8];
 long TEMPVALUES[8];
@@ -26,23 +33,27 @@ int isCritical(double value, char mode)
 		printf("DEBUG: checking temp crit values\n");
 		if (value < TEMPVALUES[0])
 		{
-			return 1;
+			return LED_VERY_LOW;
 		}
 		else if(value > TEMPVALUES[1] && value < TEMPVALUES[2])
 		{
-			return 2;
+			return LED_LOW;
 		}
 		else if(value > TEMPVALUES[3] && value < TEMPVALUES[4])
 		{
-			return 3;
+			return LED_NORMAL;
 		}
 		else if (value > TEMPVALUES[5] && value < TEMPVALUES[6])
 		{
-			return 4;
+			return LED_HIGH;
 		} 
+		else if (value > TEMPVALUES[7])
+                {
+                        return LED_VERY_HIGH;
+                }  
 		else
 		{
-			return 5;
+			return LED_ERROR;
 		}
 	}
 	else if (mode == 'h')
@@ -50,23 +61,27 @@ int isCritical(double value, char mode)
 		printf("DEBUG: checking hum crit values\n");
 		if (value < HUMVALUES[0])
 		{
-			return 1;
+			return LED_VERY_LOW;
 		}
 		else if(value > HUMVALUES[1] && value < HUMVALUES[2])
 		{
-			return 2;
+			return LED_LOW;
 		}
 		else if(value > HUMVALUES[3] && value < HUMVALUES[4])
 		{
-			return 3;
+			return LED_NORMAL;
 		}
 		else if (value > HUMVALUES[5] && value < HUMVALUES[6])
 		{
-			return 4;
-		} 
+			return LED_HIGH;
+		}
+		else if (value > HUMVALUES[7])
+                {
+                        return LED_VERY_HIGH;
+                }  
 		else
 		{
-			return 5;
+			return LED_ERROR;
 		}
 	}
 	else if (mode == 'p')
@@ -74,23 +89,27 @@ int isCritical(double value, char mode)
 		printf("DEBUG: checking pres crit values");
 		if (value < PRESVALUES[0])
 		{
-			return 1;
+			return LED_VERY_LOW;
 		}
 		else if(value > PRESVALUES[1] && value < PRESVALUES[2])
 		{
-			return 2;
+			return LED_LOW;
 		}
 		else if(value > PRESVALUES[3] && value < PRESVALUES[4])
 		{
-			return 3;
+			return LED_NORMAL;
 		}
 		else if (value > PRESVALUES[5] && value < PRESVALUES[6])
 		{
-			return 4;
+			return LED_HIGH;
 		} 
+		else if (value > PRESVALUES[7])
+                {
+                        return LED_VERY_HIGH;
+                }  
 		else
 		{
-			return 5;
+			return LED_ERROR;
 		}
 	}
 	else
