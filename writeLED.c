@@ -1,14 +1,18 @@
 #include <wiringPi.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <time.h>
+#include "common.h"
 
 int LED_mode = 0;
 
-/* 1 - red fast blinking - very bad
- * 2 - red slowly blinking - bad
- * 3 - red green alternating slowly - everything normal
- * 4 - green slowly blinking - better
- * 5 - green fast blinking - too good
+/* 1 - red fast blinking - very low
+ * 2 - red slowly blinking - low
+ * 3 - red green alternating slowly - normal
+ * 4 - green slowly blinking - high
+ * 5 - green fast blinking - very high
+
+ * everything else: red and green simultansously blinking - ERROR
 */
 
 void* LED_output() {
@@ -18,74 +22,83 @@ while (1) {
 switch (LED_mode) {
 	
 	case 1:
-		pinMode(3,OUTPUT);
-                digitalWrite(3,1);
-                delay(250);
-                digitalWrite(3,0);
-                delay(250);
+		pinMode(2,OUTPUT);
+                digitalWrite(2,1);
+                doSleep(0,125000000);
+                digitalWrite(2,0);
+                doSleep(0,125000000);
 		break;
 
 	case 2:
 
-		pinMode(3,OUTPUT);
-                digitalWrite(3,1);
-                delay(1000);
-                digitalWrite(3,0);
-                delay(1000);
+		pinMode(2,OUTPUT);
+                digitalWrite(2,1);
+                doSleep(0,250000000);
+                digitalWrite(2,0);
+                doSleep(0,250000000);
                 break;
       
   	case 3:
 
 		pinMode(0,OUTPUT);
-		pinMode(3,OUTPUT);
+		pinMode(2,OUTPUT);
                 digitalWrite(0,1);
-                delay(500);
+                doSleep(0,500000000);
                 digitalWrite(0,0);
-                delay(2000);
-                digitalWrite(3,1);
-                delay(500);
-                digitalWrite(3,0);
-                delay(2000);
+                doSleep(0,500000000);
+                digitalWrite(2,1);
+                doSleep(0,500000000);
+                digitalWrite(2,0);
+                doSleep(0,500000000);
                 break;
 	case 4:
 		pinMode(0,OUTPUT);
                 digitalWrite(0,1);
-                delay(1000);
+                doSleep(0,250000000);
                 digitalWrite(0,0);
-                delay(1000);
+                doSleep(0,250000000);
 								break;
 
 	case 5:
 
 		pinMode(0,OUTPUT);
                 digitalWrite(0,1);
-                delay(250);
+                doSleep(0,125000000);
                 digitalWrite(0,0);
-                delay(250);
+                doSleep(0,125000000);
                 break;
 
-	case -1:
+	default:
 
                 pinMode(3,OUTPUT);
-                digitalWrite(3,1);
-                delay(500);
-                digitalWrite(3,0);
-                delay(500);
+                pinMode(0,OUTPUT);
+                digitalWrite(0,1);
+		digitalWrite(3,1);
+                doSleep(0,750000000);
+                digitalWrite(0,0);
+		digitalWrite(3,0);
+                doSleep(0,250000000);
                 break;
-
+ø
 	}
 }
 return 0;
 }
 
-extern void writeLED(int mode) {
+extern void writeLED(uint8_t mode) {
 int x = -1;
 pthread_t thread;
 
 /* start thread only if mode has changed */
 if (mode != LED_mode) {
+	
 	if (mode != 0) pthread_cancel(thread); /* cancel old thread*/
 
+	pinMode(0,OUTPUT);
+	pinMode(2,OUTPUT);
+	digitalWrite(0,0);
+	digitalWrite(2,0);
+	
 	LED_mode = mode;
 	/*
 	if (wiringPiSetup() == -1)
