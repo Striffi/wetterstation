@@ -17,6 +17,11 @@ int LED_mode = 0;
 
 void* LED_output() {
 
+pinMode(0,OUTPUT);
+pinMode(2,OUTPUT);
+digitalWrite(0,0);
+digitalWrite(2,0);
+
 while (1) {
 
 switch (LED_mode) {
@@ -88,18 +93,14 @@ pthread_t thread;
 
 /* start thread only if mode has changed */
 if (mode != LED_mode) {
-	
+
 	if (mode != 0) pthread_cancel(thread); /* cancel old thread*/
-	pinMode(0,OUTPUT);
-	pinMode(2,OUTPUT);
-	digitalWrite(0,0);
-	digitalWrite(2,0);
-	
+
 	LED_mode = mode;
-	
+
 	x = pthread_create(&thread, NULL, &LED_output, NULL);
 
-	if (x != 0) fprintf (stdout, "DEBUG: %s: LED_output didn´t started\n", FNAME);
+	if (x != 0) fprintf (stderr, "%s: LED_output didn´t started\n", FNAME);
 	}
 }
 
