@@ -29,16 +29,16 @@ switch (LED_mode) {
 	case 1:
 		pinMode(2,OUTPUT);
                 digitalWrite(2,1);
-                doSleep(0,125000000);
+                doSleep(0,250000000);
                 digitalWrite(2,0);
-                doSleep(0,125000000);
+                doSleep(0,250000000);
 		break;
 
 	case 2:
 
 		pinMode(2,OUTPUT);
                 digitalWrite(2,1);
-                doSleep(0,250000000);
+                doSleep(0,500000000);
                 digitalWrite(2,0);
                 doSleep(0,250000000);
                 break;
@@ -62,15 +62,15 @@ switch (LED_mode) {
                 doSleep(0,250000000);
                 digitalWrite(0,0);
                 doSleep(0,250000000);
-								break;
+		break;
 
 	case 5:
 
 		pinMode(0,OUTPUT);
                 digitalWrite(0,1);
-                doSleep(0,125000000);
+                doSleep(0,500000000);
                 digitalWrite(0,0);
-                doSleep(0,125000000);
+                doSleep(0,250000000);
                 break;
 
 	default: /*signaling ERROR*/
