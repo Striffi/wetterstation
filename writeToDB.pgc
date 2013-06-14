@@ -1,24 +1,20 @@
 #include <pgtypes_timestamp.h>
 #include "common.h"
 
-
-void
-print_sqlca()
+void print_sqlca()
 {
-    fprintf(stderr, "==== sqlca ====\n");
-    fprintf(stderr, "sqlcode: %ld\n", sqlca.sqlcode);
-    fprintf(stderr, "sqlerrm.sqlerrml: %d\n", sqlca.sqlerrm.sqlerrml);
-    fprintf(stderr, "sqlerrm.sqlerrmc: %s\n", sqlca.sqlerrm.sqlerrmc);
-    fprintf(stderr, "sqlerrd: %ld %ld %ld %ld %ld %ld\n", sqlca.sqlerrd[0],sqlca.sqlerrd[1],sqlca.sqlerrd[2],
-                                                          sqlca.sqlerrd[3],sqlca.sqlerrd[4],sqlca.sqlerrd[5]);
-    fprintf(stderr, "sqlwarn: %d %d %d %d %d %d %d %d\n", sqlca.sqlwarn[0], sqlca.sqlwarn[1], sqlca.sqlwarn[2],
-                                                          sqlca.sqlwarn[3], sqlca.sqlwarn[4], sqlca.sqlwarn[5],
-                                                          sqlca.sqlwarn[6], sqlca.sqlwarn[7]);
-    fprintf(stderr, "sqlstate: %5s\n", sqlca.sqlstate);
-    fprintf(stderr, "===============\n");
+	fprintf(stderr, "==== sqlca ====\n");
+	fprintf(stderr, "sqlcode: %ld\n", sqlca.sqlcode);
+	fprintf(stderr, "sqlerrm.sqlerrml: %d\n", sqlca.sqlerrm.sqlerrml);
+	fprintf(stderr, "sqlerrm.sqlerrmc: %s\n", sqlca.sqlerrm.sqlerrmc);
+	fprintf(stderr, "sqlerrd: %ld %ld %ld %ld %ld %ld\n", sqlca.sqlerrd[0],sqlca.sqlerrd[1],sqlca.sqlerrd[2],
+														sqlca.sqlerrd[3],sqlca.sqlerrd[4],sqlca.sqlerrd[5]);
+	fprintf(stderr, "sqlwarn: %d %d %d %d %d %d %d %d\n", sqlca.sqlwarn[0], sqlca.sqlwarn[1], sqlca.sqlwarn[2],
+														sqlca.sqlwarn[3], sqlca.sqlwarn[4], sqlca.sqlwarn[5],
+														sqlca.sqlwarn[6], sqlca.sqlwarn[7]);
+	fprintf(stderr, "sqlstate: %5s\n", sqlca.sqlstate);
+	fprintf(stderr, "===============\n");
 }
-
-
 
 extern int writeToDB(const struct tm *timest, double temp, double hum, double pres)
 {
@@ -26,42 +22,41 @@ EXEC SQL WHENEVER SQLWARNING CALL print_sqlca();
 EXEC SQL WHENEVER SQLERROR CALL print_sqlca();
 
 EXEC SQL BEGIN DECLARE SECTION;
-timestamp ts;
-double t = temp;
-double h = hum;
-double p = pres;
+	timestamp ts;
+	double t = temp;
+	double h = hum;
+	double p = pres;
 EXEC SQL END DECLARE SECTION;
-char *date_string;
+
+char *date_string  = NULL;;
 const char FNAME[] = "writeToDB()";
 
-date_string = alloca(sizeof(char) * 20);
-
-/*alloca errorhandling*/
+errno = 0;
+date_string = malloc(sizeof(char) * 20);
+if (date_string == NULL)
+{
+	fprintf(stderr, "ERROR: %s: malloc failed. EXITING! %s", FNAME, strerror(errno));
+	exit(EXIT_FAILURE);
+}
 
 snprintf(date_string, 20, "%04d-%02d-%02d %02d:%02d:%02d", timest->tm_year+1900, timest->tm_mon+1, timest->tm_mday, timest->tm_hour, 
 timest->tm_min, timest->tm_sec);
 
 ts = PGTYPEStimestamp_from_asc(date_string, NULL);
+free(date_string);
 
 fprintf(stdout, "DEBUG: %s: Timestamp = %04d-%02d-%02d %02d:%02d:%02d\n", FNAME, timest->tm_year+1900, timest->tm_mon+1, timest->tm_mday, timest->tm_hour, timest->tm_min, timest->tm_sec);
 fprintf(stdout, "DEBUG: %s: Temp = %2.1f\n", FNAME, temp);
 fprintf(stdout, "DEBUG: %s: Hum  = %2.0f\n", FNAME, hum);
 fprintf(stdout, "DEBUG: %s: Pres = %4.0f\n", FNAME, pres);
 
-	EXEC SQL CONNECT TO wetterstation USER root;
-	fprintf(stdout, "DEBUG: after DB-Connect");
-	/*exec sql BEGIN WORK;*/
-	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES ( :ts, 'Temperature', :t);
-	EXEC SQL COMMIT;
-	fprintf(stdout, "DEBUG: after first insert");
-	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (:ts, 'Humidity', :h);
-	EXEC SQL COMMIT;
-fprintf(stdout, "DEBUG: after second insert");
-	EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (:ts, 'Pressure', :p);
-	EXEC SQL COMMIT;
-fprintf(stdout, "DEBUG: after third insert");
-	/*exec sql COMMIT WORK;*/
-	EXEC SQL DISCONNECT CURRENT;
-fprintf(stdout, "DEBUG: after DB-Disconnect");
-	return 0;
+EXEC SQL CONNECT TO wetterstation USER root;
+EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES ( :ts, 'Temperature', :t);
+EXEC SQL COMMIT;
+EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (:ts, 'Humidity', :h);
+EXEC SQL COMMIT;
+EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (:ts, 'Pressure', :p);
+EXEC SQL COMMIT;
+EXEC SQL DISCONNECT CURRENT;
+return 0;
 }

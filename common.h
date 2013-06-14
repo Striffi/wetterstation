@@ -14,8 +14,8 @@ struct temphum{
 };
 
 extern int8_t getTempHum(struct temphum  *const th);
-extern double getPres();
+extern double getPres(const int fd_bosch);
 extern int8_t writeLCD(const int fd_lcd, const double value, const char mode, const struct tm *time); /*mode: 't' for temp, 'h' for hum and 'p' for pres*/
 extern void writeLED(uint8_t mode); /*mode: siehe mode.h*/
-extern void doSleep(int sec, int nsec); 
+extern void doSleep(const int sec, const int nsec); 
 extern int writeToDB(const struct tm *timestamp, double temp, double hum, double pres);

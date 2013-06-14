@@ -25,62 +25,59 @@ digitalWrite(2,0);
 while (1) {
 
 switch (LED_mode) {
-	
+
 	case 1:
 		pinMode(2,OUTPUT);
-                digitalWrite(2,1);
-                doSleep(0,250000000);
-                digitalWrite(2,0);
-                doSleep(0,250000000);
+		digitalWrite(2,1);
+		doSleep(0,250000000);
+		digitalWrite(2,0);
+		doSleep(0,250000000);
 		break;
 
 	case 2:
-
 		pinMode(2,OUTPUT);
-                digitalWrite(2,1);
-                doSleep(0,500000000);
-                digitalWrite(2,0);
-                doSleep(0,250000000);
-                break;
-      
-  	case 3:
+		digitalWrite(2,1);
+		doSleep(0,500000000);
+		digitalWrite(2,0);
+		doSleep(0,250000000);
+		break;
 
+	case 3:
 		pinMode(0,OUTPUT);
 		pinMode(2,OUTPUT);
-                digitalWrite(0,1);
-                doSleep(0,500000000);
-                digitalWrite(0,0);
-                doSleep(0,500000000);
-                digitalWrite(2,1);
-                doSleep(0,500000000);
-                digitalWrite(2,0);
-                doSleep(0,500000000);
-                break;
+		digitalWrite(0,1);
+		doSleep(0,500000000);
+		digitalWrite(0,0);
+		doSleep(0,500000000);
+		digitalWrite(2,1);
+		doSleep(0,500000000);
+		digitalWrite(2,0);
+		doSleep(0,500000000);
+		break;
+
 	case 4:
 		pinMode(0,OUTPUT);
-                digitalWrite(0,1);
-                doSleep(0,250000000);
-                digitalWrite(0,0);
-                doSleep(0,250000000);
+		digitalWrite(0,1);
+		doSleep(0,250000000);
+		digitalWrite(0,0);
+		doSleep(0,250000000);
 		break;
 
 	case 5:
-
 		pinMode(0,OUTPUT);
-                digitalWrite(0,1);
-                doSleep(0,500000000);
-                digitalWrite(0,0);
-                doSleep(0,250000000);
-                break;
+		digitalWrite(0,1);
+		doSleep(0,500000000);
+		digitalWrite(0,0);
+		doSleep(0,250000000);
+		break;
 
 	default: /*signaling ERROR*/
-                
 		pinMode(3,OUTPUT);
-                digitalWrite(3,1);
-                doSleep(0,750000000);
-                digitalWrite(3,0);
-                doSleep(0,250000000);
-                break;
+		digitalWrite(3,1);
+		doSleep(0,750000000);
+		digitalWrite(3,0);
+		doSleep(0,250000000);
+		break;
 	}
 }
 return 0;
@@ -100,8 +97,6 @@ if (mode != LED_mode) {
 
 	x = pthread_create(&thread, NULL, &LED_output, NULL);
 
-	if (x != 0) fprintf (stderr, "%s: LED_output didn´t started\n", FNAME);
+	if (x != 0) fprintf (stderr, "%s: Thread for LED_output did not start\n", FNAME);
 	}
 }
-
-

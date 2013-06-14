@@ -3,7 +3,7 @@
 
 extern int8_t writeLCD(const int fd_lcd, const double value, const char mode, const struct tm *time)
 {
-	const char FNAME[] = "writeLCD()";
+	const char *FNAME = "writeLCD()";
 	char *shour  = NULL;
 	char *smin   = NULL;
 	char *ssec   = NULL;
@@ -19,18 +19,19 @@ extern int8_t writeLCD(const int fd_lcd, const double value, const char mode, co
 	snprintf(ssec,   3, "%02d", time->tm_sec);
 	snprintf(svalue, 7, "%4.1f", value);
 	fprintf(stdout, "DEBUG: %s: hour=%s min=%s sec=%s mode=%c value=%s\n", FNAME, shour, smin, ssec, mode, svalue);
-	
-	/* set cursor to home (upper left position) */
-	/*lcdHome(fd_lcd);*/
-	
-	/* clear the display */
-	/*lcdClear(fd_lcd);*/ /*macht blödsinn! nicht verwenden!*/
-	lcdPosition(fd_lcd, 0, 0);
-	lcdPuts(fd_lcd, "                ");
-	lcdPosition(fd_lcd, 0, 1);
-	lcdPuts(fd_lcd, "                ");
-	
+
+	/* switch off backlight */
+	lcdDisplay(fd_lcd, 1);
 	/* set the cursor position: column 0-15, row 0-1*/
+	/* set cursor top row, position 0 */
+	lcdPosition(fd_lcd, 0, 0);
+	/* clear the screen (fill with blanks) */
+	lcdPuts(fd_lcd, "                ");
+	/* set cursor bottom row, position 0 */
+	lcdPosition(fd_lcd, 0, 1);
+	/* clear the screen (fill with blanks) */
+	lcdPuts(fd_lcd, "                ");
+
 	lcdPosition(fd_lcd, 0, 0);
 	lcdPuts(fd_lcd, shour);
 	lcdPutchar(fd_lcd, ':');
@@ -61,6 +62,6 @@ extern int8_t writeLCD(const int fd_lcd, const double value, const char mode, co
 				lcdPuts(fd_lcd, " HPa");
 				break;
 	}
-	
+
 	return 0;
 }

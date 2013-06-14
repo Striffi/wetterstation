@@ -9,149 +9,156 @@
 #include <pgtypes_timestamp.h>
 #include "common.h"
 
-void
-print_sqlca()
+void print_sqlca()
 {
-    fprintf(stderr, "==== sqlca ====\n");
-    fprintf(stderr, "sqlcode: %ld\n", sqlca.sqlcode);
-    fprintf(stderr, "sqlerrm.sqlerrml: %d\n", sqlca.sqlerrm.sqlerrml);
-    fprintf(stderr, "sqlerrm.sqlerrmc: %s\n", sqlca.sqlerrm.sqlerrmc);
-    fprintf(stderr, "sqlerrd: %ld %ld %ld %ld %ld %ld\n", sqlca.sqlerrd[0],sqlca.sqlerrd[1],sqlca.sqlerrd[2],
-                                                          sqlca.sqlerrd[3],sqlca.sqlerrd[4],sqlca.sqlerrd[5]);
-    fprintf(stderr, "sqlwarn: %d %d %d %d %d %d %d %d\n", sqlca.sqlwarn[0], sqlca.sqlwarn[1], sqlca.sqlwarn[2],
-                                                          sqlca.sqlwarn[3], sqlca.sqlwarn[4], sqlca.sqlwarn[5],
-                                                          sqlca.sqlwarn[6], sqlca.sqlwarn[7]);
-    fprintf(stderr, "sqlstate: %5s\n", sqlca.sqlstate);
-    fprintf(stderr, "===============\n");
+	fprintf(stderr, "==== sqlca ====\n");
+	fprintf(stderr, "sqlcode: %ld\n", sqlca.sqlcode);
+	fprintf(stderr, "sqlerrm.sqlerrml: %d\n", sqlca.sqlerrm.sqlerrml);
+	fprintf(stderr, "sqlerrm.sqlerrmc: %s\n", sqlca.sqlerrm.sqlerrmc);
+	fprintf(stderr, "sqlerrd: %ld %ld %ld %ld %ld %ld\n", sqlca.sqlerrd[0],sqlca.sqlerrd[1],sqlca.sqlerrd[2],
+														sqlca.sqlerrd[3],sqlca.sqlerrd[4],sqlca.sqlerrd[5]);
+	fprintf(stderr, "sqlwarn: %d %d %d %d %d %d %d %d\n", sqlca.sqlwarn[0], sqlca.sqlwarn[1], sqlca.sqlwarn[2],
+														sqlca.sqlwarn[3], sqlca.sqlwarn[4], sqlca.sqlwarn[5],
+														sqlca.sqlwarn[6], sqlca.sqlwarn[7]);
+	fprintf(stderr, "sqlstate: %5s\n", sqlca.sqlstate);
+	fprintf(stderr, "===============\n");
 }
-
-
 
 extern int writeToDB(const struct tm *timest, double temp, double hum, double pres)
 {
 /* exec sql whenever sql_warning  call print_sqlca ( ) ; */
-#line 24 "writeToDB.pgc"
+#line 21 "writeToDB.pgc"
 
 /* exec sql whenever sqlerror  call print_sqlca ( ) ; */
-#line 25 "writeToDB.pgc"
+#line 22 "writeToDB.pgc"
 
 
 /* exec sql begin declare section */
- 
-   
-   
-   
+	 
+	   
+	   
+	   
 
-#line 28 "writeToDB.pgc"
+#line 25 "writeToDB.pgc"
  timestamp ts ;
  
-#line 29 "writeToDB.pgc"
+#line 26 "writeToDB.pgc"
  double t = temp ;
  
-#line 30 "writeToDB.pgc"
+#line 27 "writeToDB.pgc"
  double h = hum ;
  
-#line 31 "writeToDB.pgc"
+#line 28 "writeToDB.pgc"
  double p = pres ;
 /* exec sql end declare section */
-#line 32 "writeToDB.pgc"
+#line 29 "writeToDB.pgc"
 
 
+char *date_string  = NULL;;
 const char FNAME[] = "writeToDB()";
 
-ts = PGTYPEStimestamp_from_asc("2000-01-01 00:00:00", NULL);
+errno = 0;
+date_string = malloc(sizeof(char) * 20);
+if (date_string == NULL)
+{
+	fprintf(stderr, "ERROR: %s: malloc failed. EXITING! %s", FNAME, strerror(errno));
+	exit(EXIT_FAILURE);
+}
+
+snprintf(date_string, 20, "%04d-%02d-%02d %02d:%02d:%02d", timest->tm_year+1900, timest->tm_mon+1, timest->tm_mday, timest->tm_hour, 
+timest->tm_min, timest->tm_sec);
+
+ts = PGTYPEStimestamp_from_asc(date_string, NULL);
+free(date_string);
 
 fprintf(stdout, "DEBUG: %s: Timestamp = %04d-%02d-%02d %02d:%02d:%02d\n", FNAME, timest->tm_year+1900, timest->tm_mon+1, timest->tm_mday, timest->tm_hour, timest->tm_min, timest->tm_sec);
 fprintf(stdout, "DEBUG: %s: Temp = %2.1f\n", FNAME, temp);
 fprintf(stdout, "DEBUG: %s: Hum  = %2.0f\n", FNAME, hum);
 fprintf(stdout, "DEBUG: %s: Pres = %4.0f\n", FNAME, pres);
 
-	{ ECPGconnect(__LINE__, 0, "wetterstation" , "root" , NULL , NULL, 0); 
-#line 43 "writeToDB.pgc"
+{ ECPGconnect(__LINE__, 0, "wetterstation" , "root" , NULL , NULL, 0); 
+#line 53 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 43 "writeToDB.pgc"
+#line 53 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 43 "writeToDB.pgc"
+#line 53 "writeToDB.pgc"
 
-	fprintf(stdout, "DEBUG: after DB-Connect");
-	/*exec sql BEGIN WORK;*/
-	/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*/{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "insert into weathervalues ( time , sensor , measurement ) values ( $1  , 'Temperature' , $2  )", 
+{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "insert into weathervalues ( time , sensor , measurement ) values ( $1  , 'Temperature' , $2  )", 
 	ECPGt_timestamp,&(ts),(long)1,(long)1,sizeof(timestamp), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_double,&(t),(long)1,(long)1,sizeof(double), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 46 "writeToDB.pgc"
+#line 54 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 46 "writeToDB.pgc"
+#line 54 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 46 "writeToDB.pgc"
+#line 54 "writeToDB.pgc"
 
-	{ ECPGtrans(__LINE__, NULL, "commit");
-#line 47 "writeToDB.pgc"
+{ ECPGtrans(__LINE__, NULL, "commit");
+#line 55 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 47 "writeToDB.pgc"
+#line 55 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 47 "writeToDB.pgc"
+#line 55 "writeToDB.pgc"
 
-	fprintf(stdout, "DEBUG: after first insert");
-	/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*//*:ts*/{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "insert into weathervalues ( time , sensor , measurement ) values ( null , 'Humidity' , $1  )", 
+{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "insert into weathervalues ( time , sensor , measurement ) values ( $1  , 'Humidity' , $2  )", 
+	ECPGt_timestamp,&(ts),(long)1,(long)1,sizeof(timestamp), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_double,&(h),(long)1,(long)1,sizeof(double), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 49 "writeToDB.pgc"
+#line 56 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 49 "writeToDB.pgc"
+#line 56 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 49 "writeToDB.pgc"
+#line 56 "writeToDB.pgc"
 
-	{ ECPGtrans(__LINE__, NULL, "commit");
-#line 50 "writeToDB.pgc"
+{ ECPGtrans(__LINE__, NULL, "commit");
+#line 57 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 50 "writeToDB.pgc"
+#line 57 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 50 "writeToDB.pgc"
+#line 57 "writeToDB.pgc"
 
-fprintf(stdout, "DEBUG: after second insert");
-	/*to_date('2010-11-30 22:05:15', 'YYYY-MM-DD HH24:MI:SS')*//*:ts*/{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "insert into weathervalues ( time , sensor , measurement ) values ( null , 'Pressure' , $1  )", 
+{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "insert into weathervalues ( time , sensor , measurement ) values ( $1  , 'Pressure' , $2  )", 
+	ECPGt_timestamp,&(ts),(long)1,(long)1,sizeof(timestamp), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_double,&(p),(long)1,(long)1,sizeof(double), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);
-#line 52 "writeToDB.pgc"
+#line 58 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 52 "writeToDB.pgc"
+#line 58 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 52 "writeToDB.pgc"
+#line 58 "writeToDB.pgc"
 
-	{ ECPGtrans(__LINE__, NULL, "commit");
-#line 53 "writeToDB.pgc"
+{ ECPGtrans(__LINE__, NULL, "commit");
+#line 59 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 53 "writeToDB.pgc"
+#line 59 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 53 "writeToDB.pgc"
+#line 59 "writeToDB.pgc"
 
-fprintf(stdout, "DEBUG: after third insert");
-	/*exec sql COMMIT WORK;*/
-	{ ECPGdisconnect(__LINE__, "CURRENT");
-#line 56 "writeToDB.pgc"
+{ ECPGdisconnect(__LINE__, "CURRENT");
+#line 60 "writeToDB.pgc"
 
 if (sqlca.sqlwarn[0] == 'W') print_sqlca ( );
-#line 56 "writeToDB.pgc"
+#line 60 "writeToDB.pgc"
 
 if (sqlca.sqlcode < 0) print_sqlca ( );}
-#line 56 "writeToDB.pgc"
+#line 60 "writeToDB.pgc"
 
-fprintf(stdout, "DEBUG: after DB-Disconnect");
-	return 0;
+return 0;
 }
