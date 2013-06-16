@@ -16,7 +16,7 @@ Weatherstation = function() {
 	 }
 	 
 	 function refresh() {
-		setTimeout(refresh,1000);
+		setTimeout(refresh,30000);
         weatherstation.drawChart();
 	 }
 	 

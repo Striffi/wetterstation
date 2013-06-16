@@ -38,8 +38,8 @@ public class WeatherstationDAO {
 			String dbuser = prop.getProperty("dbuser", "postgres");
 			String dbpass = prop.getProperty("dbpass", "password");
 			Class.forName("org.postgresql.Driver");
-			con = DriverManager
-					.getConnection("jdbc:postgresql://" + dbhost + ":" + dbport + "/" + db + "", dbuser, dbpass);
+			con = DriverManager.getConnection("jdbc:postgresql://" + dbhost + ":" + dbport + "/" + db + "", dbuser,
+					dbpass);
 			con.setAutoCommit(true);
 			if (con == null) {
 				System.err.println("Failed to make connection!");
@@ -58,17 +58,28 @@ public class WeatherstationDAO {
 
 	public List<String[]> retrieveMeasurements(String type) throws SQLException {
 		List<String[]> measurements = new ArrayList<String[]>();
+		if (con == null) {
+			return measurements;
+		}
+		type = type.substring(0, 1).toUpperCase() + type.substring(1);
 		Statement stmt = con.createStatement();
-		String query = "SELECT time, measurement FROM weathervalues where sensor='" + type + "' order by time desc LIMIT 50;";
+		String query = "SELECT time, measurement FROM weathervalues where sensor='" + type
+				+ "' order by time desc LIMIT 50;";
 		ResultSet rs = stmt.executeQuery(query);
 		while (rs.next()) {
 			measurements.add(new String[] { rs.getString(1), rs.getString(2) });
 		}
-		measurements.add(new String[] {"Time", type.substring(0, 1).toUpperCase() + type.substring(1)});
+		if (measurements.size() == 0) {
+			measurements.add(new String[] { "0", "0" });
+		}
+		measurements.add(new String[] { "Time",  type});
 		return measurements;
 	}
-	
+
 	public void insertMeasurement(BigDecimal measurement, String type) throws SQLException {
+		if (con == null) {
+			return;
+		}
 		String query = "INSERT INTO weathervalues (time, measurement, sensor) values (?,?,?)";
 		PreparedStatement stmt = con.prepareStatement(query);
 		stmt.setTimestamp(1, new Timestamp(new Date().getTime()));

@@ -14,7 +14,11 @@ touch /var/lock/lcd-ip
 case "$1" in
 	start)
 		echo "show IP on LCD"
-		sudo python /home/pi/lcd/ip.py
+		sudo python /home/pi/lcd/ip.py up
+		;;
+	stop)
+		echo "show IP on LCD"
+		sudo python /home/pi/lcd/ip.py down
 		;;
 	kill)
 		echo "killing LCD"

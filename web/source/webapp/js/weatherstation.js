@@ -41,7 +41,7 @@ Weatherstation = function() {
 			column = row[i].split(",");
 			value[i] = [];
 			value[i][0] = column[0];
-			value[i][1] = parseInt(column[1]);
+			value[i][1] = parseFloat(column[1]);
 		}
 		return value;
 	}
