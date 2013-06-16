@@ -1,20 +1,32 @@
-﻿#! /bin/sh
+#!/bin/sh
 # /etc/init.d/led
+### BEGIN INIT INFO
+# Provides:          led
+# Required-Start:    
+# Required-Stop:     
+# Default-Start:     1 2 3 4 5 6
+# Default-Stop:      0
+# Short-Description: LED indication for boot finish
+### END INIT INFO
 
 touch /var/lock/led
 
 case "$1" in
 	start | green)
 		echo "green LED"
-		/home/pi/led/led.sh green > /dev/null
+		/home/pi/led/led_export.sh green > /dev/null
 		;;
 	red)
 		echo "red LED"
-		/home/pi/led/led.sh red > /dev/null
+		/home/pi/led/led_export.sh red > /dev/null
 		;;
-	stop | off | kill)
+	off | kill)
 		echo "off LED"
-		/home/pi/led/led.sh off > /dev/null
+		/home/pi/led/led_export.sh off > /dev/null
+		;;
+		stop)
+		echo "red LED"
+		/home/pi/led/led_export.sh red > /dev/null
 		;;
 	*)
 		echo "Usage: /etc/init.d/led {green|red|off}"

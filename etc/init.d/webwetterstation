@@ -1,0 +1,35 @@
+#!/bin/sh
+# /etc/init.d/webwetterstation
+### BEGIN INIT INFO
+# Provides:          webwetterstation
+# Required-Start:    $local_fs $network wetterstation
+# Required-Stop:     wetterstation
+# Default-Start:     2 3 4 5 6
+# Default-Stop:      0 1
+# Short-Description: Webserver for Wetterstation
+### END INIT INFO
+
+touch /var/lock/webwetterstation
+
+case "$1" in
+	start)
+		echo "starting Webserver for Wetterstation ... "
+		cd /home/pi/wetterstation/web
+		/usr/bin/java -jar /home/pi/wetterstation/web/weatherstation.jar &
+		;;
+	stop)
+		echo "stopping Webserver for Wetterstation ..."
+		PID=`ps aux | grep java.*weatherstation.jar | grep -v grep | grep -v sudo | awk '{print $2}'`
+		kill $PID
+		;;
+	kill)
+		echo "killing Webserver for Wetterstation ..."
+		PID=`ps aux | grep java.*weatherstation.jar | grep -v grep | grep -v sudo | awk '{print $2}'`
+		kill -9 $PID
+		;;
+		*)
+		echo "Usage: /etc/init.d/webwetterstation {start|stop|kill}"
+		exit 1
+		;;
+esac
+exit 0

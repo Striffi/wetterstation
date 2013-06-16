@@ -1,16 +1,24 @@
-﻿#! /bin/sh
+#!/bin/sh
 # /etc/init.d/wetterstation
+### BEGIN INIT INFO
+# Provides:          wetterstation
+# Required-Start:    $local_fs lcd-ip
+# Required-Stop:     lcd-ip
+# Default-Start:     2 3 4 5 6
+# Default-Stop:      0 1
+# Short-Description: Wetterstation - read Sensors on I2C Bus
+### END INIT INFO
 
 touch /var/lock/wetterstation
 
 case "$1" in
 	start)
-		echo "starting Wetterstation ... "
+		echo "starting Wetterstation ..."
 		cd /home/pi/wetterstation
 		./main > /dev/null &
 		;;
 	stop)
-		echo "Killing RasPi RSS Reader ..."
+		echo "stopping Wetterstation ..."
 		killall main
 		;;
 	*)
