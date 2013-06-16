@@ -103,7 +103,7 @@ extern double getPres(const int fd_bosch) {
 
 	/*Start Conversion for raw_temperature*/
 	wiringPiI2CWriteReg8(fd_bosch, 0xF4, 0x2E);
-	doSleep(0, 5000); /* conversion should be finished after 4,5ms */
+	delay(5); /* conversion should be finished after 4,5ms */
 
 	MSB = wiringPiI2CReadReg8(fd_bosch, 0xF6);
 	LSB = wiringPiI2CReadReg8(fd_bosch, 0xF7);
@@ -115,23 +115,23 @@ extern double getPres(const int fd_bosch) {
 
 	switch (OSS) {
 		case 0:
-			doSleep(0, 5000); /* conversion should be finished after 4,5 ms with OSS=0 */
+			delay(5); /* conversion should be finished after 4,5 ms with OSS=0 */
 			break;
 	
 		case 1:
-			doSleep(0, 8000); /* conversion should be finished after 7,5 ms with OSS=1 */
+			delay(8); /* conversion should be finished after 7,5 ms with OSS=1 */
 			break;
 
 		case 2:
-			doSleep(0, 14000); /* conversion should be finished after 13,5 ms with OSS=2 */
+			delay(14); /* conversion should be finished after 13,5 ms with OSS=2 */
 			break;
 
 		case 3:
-			doSleep(0, 26000); /* conversion should be finished after 25,5 ms with OSS=3 */
+			delay(26); /* conversion should be finished after 25,5 ms with OSS=3 */
 			break;
 
 		default:
-			doSleep(0, 26000); /* Let´s be on the safe side .... */
+			delay(26); /* Let´s be on the safe side .... */
 	}
 
 	MSB = wiringPiI2CReadReg8(fd_bosch, 0xF6);
