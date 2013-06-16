@@ -5,6 +5,7 @@
 #include "common.h"
 
 int LED_mode = 0;
+pthread_t thread;
 
 /* 1 - red fast blinking - very low
  * 2 - red slowly blinking - low
@@ -16,11 +17,6 @@ int LED_mode = 0;
 */
 
 void* LED_output() {
-
-pinMode(0,OUTPUT);
-pinMode(2,OUTPUT);
-digitalWrite(0,0);
-digitalWrite(2,0);
 
 while (1) {
 
@@ -86,13 +82,18 @@ return 0;
 extern void writeLED(uint8_t mode) {
 int x = -1;
 const char FNAME[] = "writeLED()";
-pthread_t thread;
+
 
 /* start thread only if mode has changed */
 if (mode != LED_mode) {
 
-	if (mode != 0) pthread_cancel(thread); /* cancel old thread*/
-
+	if (mode != 0) {
+		pinMode(0,OUTPUT);
+		pinMode(2,OUTPUT);
+		digitalWrite(0,0);
+		digitalWrite(2,0);
+	 	pthread_cancel(thread); /* cancel old thread*/
+	}
 	LED_mode = mode;
 
 	x = pthread_create(&thread, NULL, &LED_output, NULL);
