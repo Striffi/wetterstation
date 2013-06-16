@@ -50,7 +50,7 @@ fprintf(stdout, "DEBUG: %s: Temp = %2.1f\n", FNAME, temp);
 fprintf(stdout, "DEBUG: %s: Hum  = %2.0f\n", FNAME, hum);
 fprintf(stdout, "DEBUG: %s: Pres = %4.0f\n", FNAME, pres);
 
-EXEC SQL CONNECT TO wetterstation USER root;
+EXEC SQL CONNECT TO wetterstation USER root/1234;
 EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES ( :ts, 'Temperature', :t);
 EXEC SQL COMMIT;
 EXEC SQL INSERT INTO weathervalues (time, sensor, measurement) VALUES (:ts, 'Humidity', :h);
